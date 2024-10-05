@@ -22,7 +22,7 @@
             border: 4px solid #0F0;
             cursor: none;
         }
-        #gameOver, #score, #wave, #restartButton, #specialShots, #loadingScreen, #lobby, #instructions, #lives, #killCount {
+        #gameOver, #score, #wave, #restartButton, #specialShots, #loadingScreen, #lobby, #instructions, #lives, #killCount, #slowBulletsIndicator {
             position: absolute;
             font-size: 24px;
             color: #0F0;
@@ -93,6 +93,11 @@
             color: #0F0;
             font-size: 48px;
             text-shadow: 3px 3px #00F;
+        }
+        #lobby h2 {
+            color: #0F0;
+            font-size: 24px;
+            margin-bottom: 20px;
         }
         #startButton, #restartButton {
             background-color: #0F0;
@@ -205,14 +210,24 @@
             animation: meteorExplode 1s forwards;
             z-index: 1000;
         }
+        #slowBulletsIndicator {
+            position: absolute;
+            bottom: 70px;
+            left: 10px;
+            font-size: 24px;
+            color: #0F0;
+            text-shadow: 2px 2px #00F;
+        }
     </style>
 </head>
 <body>
     <div id="loadingScreen">
         <div style="color: white; font-size: 24px;">Carregando... <span id="loadingProgress">0</span>%</div>
+        <div style="color: white; font-size: 18px; margin-top: 10px;">by CALZSAN</div>
     </div>
     <div id="lobby">
         <h1>HUANCHI</h1>
+        <h2 style="color: #0F0; font-size: 24px; margin-bottom: 20px;">by CALZSAN</h2>
         <button id="startButton">Iniciar Jogo</button>
     </div>
     <div id="pauseMenu" style="display: none;">
@@ -236,6 +251,7 @@
     <div id="killCount">Abates: 0</div>
     <div id="wave">Onda: 1</div>
     <div id="specialShots">Tiros Especiais (Tecla T): 3</div>
+    <div id="slowBulletsIndicator">Tiros Lentos (Tecla R): Pronto</div>
     <div id="gameOver">Fim de Jogo!</div>
     <button id="restartButton">Reiniciar</button>
     <div id="instructions">Pressione ESPAÇO para atirar e T para o tiro especial</div>
@@ -252,9 +268,11 @@
         const specialShotsElement = document.getElementById('specialShots');
         const gameOverElement = document.getElementById('gameOver');
         const restartButton = document.getElementById('restartButton');
+        const slowBulletsIndicator = document.getElementById('slowBulletsIndicator');
         let isPaused = false;
         const pauseMenu = document.getElementById('pauseMenu');
         const resumeButton = document.getElementById('resumeButton');
+        let slowBulletsPowerUps = 3; // Start with 3 uses
 
         canvas.width = window.innerWidth;
         canvas.height = window.innerHeight;
@@ -503,11 +521,13 @@
             gameRunning = true;
             gameOverElement.style.display = 'none';
             restartButton.style.display = 'none';
+            slowBulletsPowerUps = 3; // Reset slow bullets power-ups
             updateScore();
             updateKillCount();
             updateWave();
             updateSpecialShots();
             updateLives();
+            updateSlowBulletsIndicator(); // Update slow bullets indicator
             spawnWave();
         }
 
@@ -929,6 +949,15 @@
             specialShotsElement.textContent = `Tiros Especiais (Tecla T): ${specialShotsRemaining}`;
         }
 
+        function updateSlowBulletsIndicator() {
+            if (slowBulletsPowerActive) {
+                const remainingTime = Math.max(0, 5 - Math.floor((Date.now() - slowBulletsPowerTimer) / 1000));
+                slowBulletsIndicator.textContent = `Tiros Lentos (Tecla R): ${remainingTime}s`;
+            } else {
+                slowBulletsIndicator.textContent = `Tiros Lentos (Tecla R): ${slowBulletsPowerUps}`;
+            }
+        }
+
         function applyUpgrades() {
             player.fireRate = 500 - (upgrades.fireRate * 50); 
             player.bulletSpeed = 10 + (upgrades.bulletSpeed * 2);
@@ -950,6 +979,9 @@
             if (waveNumber % 5 === 0) {
                 spawnBoss();
                 spawnPowerUp();
+                slowBulletsPowerUps++; // Add a slow bullets power-up after defeating a boss
+                updateSlowBulletsIndicator();
+                showPowerActivatedMessage("Tiros Lentos +1!");
             } else {
                 spawnWave();
             }
@@ -1160,6 +1192,7 @@
             drawPowerUps();
             drawPowerIndicator();
             checkCollisions();
+            updateSlowBulletsIndicator();
 
             let boss = enemies.find(e => e.color === 'cyan');
             if (boss) {
@@ -1219,10 +1252,12 @@
         });
 
         function activateSlowBulletsPower() {
-            if (!slowBulletsPowerActive) {
+            if (!slowBulletsPowerActive && slowBulletsPowerUps > 0) {
                 slowBulletsPowerActive = true;
                 slowBulletsPowerTimer = Date.now();
+                slowBulletsPowerUps--;
                 showPowerActivatedMessage("Tiros Inimigos Lentos!");
+                updateSlowBulletsIndicator();
             }
         }
 
