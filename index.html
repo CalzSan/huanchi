@@ -251,7 +251,7 @@
     <div id="wave">Onda: 1</div>
     <div id="specialShots">Tiros Especiais (Tecla T): 3</div>
     <div id="slowBulletsIndicator">Tiros Lentos (Tecla R): Pronto</div>
-    <div id="gameOver">Fim de Jogo!</div>
+    <div id="gameOver">Fim de Jogo!<br><span style="font-size: 24px;">Pressione R para enfrentar o último chefão novamente</span></div>
     <button id="restartButton">Reiniciar</button>
     <div id="instructions">Pressione ESPAÇO para atirar e T para o tiro especial</div>
     <div id="lives">❤️❤️❤️</div>
@@ -272,6 +272,7 @@
         const pauseMenu = document.getElementById('pauseMenu');
         const resumeButton = document.getElementById('resumeButton');
         let slowBulletsPowerUps = 3; // Start with 3 uses
+        let lastCheckpoint = 0;
 
         canvas.width = window.innerWidth;
         canvas.height = window.innerHeight;
@@ -518,6 +519,7 @@
                 specialShotPower: 0
             };
             gameRunning = true;
+            lastCheckpoint = 0;
             gameOverElement.style.display = 'none';
             restartButton.style.display = 'none';
             slowBulletsPowerUps = 3; // Reset slow bullets power-ups
@@ -978,9 +980,9 @@
             if (waveNumber % 5 === 0) {
                 spawnBoss();
                 spawnPowerUp();
-                slowBulletsPowerUps++; // Add a slow bullets power-up after defeating a boss
+                slowBulletsPowerUps++; 
                 updateSlowBulletsIndicator();
-                showPowerActivatedMessage("Tiros Lentos +1!");
+                lastCheckpoint = waveNumber; // Update checkpoint after defeating a boss
             } else {
                 spawnWave();
             }
@@ -1209,7 +1211,11 @@
         function gameOver() {
             gameState = 'gameOver';
             gameOverElement.style.display = 'block';
-            restartButton.style.display = 'block';
+            if (lastCheckpoint > 0) {
+                gameOverElement.innerHTML = 'Fim de Jogo!<br><span style="font-size: 24px;">Pressione R para enfrentar o último chefão novamente</span>';
+            } else {
+                restartButton.style.display = 'block';
+            }
             document.body.style.cursor = 'default';
             player.lives = 0;
             updateLives();
@@ -1225,6 +1231,38 @@
                 document.body.style.cursor = 'none';
                 requestAnimationFrame(gameLoop);
             }
+        }
+
+        function respawnAtCheckpoint() {
+            gameState = 'playing';
+            gameOverElement.style.display = 'none';
+            document.body.style.cursor = 'none';
+
+            player.lives = 6;
+            player.x = canvas.width / 2;
+            player.y = canvas.height / 2;
+            player.shield = true;
+            player.shieldTimer = Date.now();
+            
+            waveNumber = lastCheckpoint;
+            enemiesInWave = 1; // Only spawn the boss
+            enemiesKilled = 0;
+            enemies = [];
+            bullets = [];
+            enemyBullets = [];
+            meteors = [];
+            powerUps = [];
+            
+            updateLives();
+            updateWave();
+            updateScore();
+            updateKillCount();
+            updateSpecialShots();
+            updateSlowBulletsIndicator();
+            
+            spawnBoss(); // Spawn the boss directly
+            
+            requestAnimationFrame(gameLoop);
         }
 
         canvas.addEventListener('mousemove', (e) => {
@@ -1248,6 +1286,9 @@
             }
             if (e.code === 'Escape' && gameState === 'playing') {
                 togglePause();
+            }
+            if (e.code === 'KeyR' && gameState === 'gameOver' && lastCheckpoint > 0) {
+                respawnAtCheckpoint();
             }
             if (e.code === 'KeyR' && gameState === 'playing') {
                 activateSlowBulletsPower();
