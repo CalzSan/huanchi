@@ -223,7 +223,6 @@
 <body>
     <div id="loadingScreen">
         <div style="color: white; font-size: 24px;">Carregando... <span id="loadingProgress">0</span>%</div>
-        <div style="color: white; font-size: 18px; margin-top: 10px;">by CALZSAN</div>
     </div>
     <div id="lobby">
         <h1>HUANCHI</h1>
@@ -1071,7 +1070,7 @@
                 radius: 30,
                 color: 'cyan',
                 speed: player.speed * 0.7,
-                health: 150,
+                health: 350,
                 lastShot: 0,
                 shotInterval: 1667,
                 shieldActive: false,
@@ -1159,13 +1158,17 @@
                 ctx.lineWidth = 5;
                 ctx.stroke();
             }
-            const healthBarWidth = 100;
-            const healthBarHeight = 10;
-            const healthPercentage = boss.health / 150;
+            const healthBarWidth = 200;
+            const healthBarHeight = 20;
+            const healthPercentage = boss.health / 350;
             ctx.fillStyle = 'red';
-            ctx.fillRect(boss.x - healthBarWidth / 2, boss.y - boss.radius - 20, healthBarWidth, healthBarHeight);
+            ctx.fillRect(canvas.width - healthBarWidth - 10, 10, healthBarWidth, healthBarHeight);
             ctx.fillStyle = 'green';
-            ctx.fillRect(boss.x - healthBarWidth / 2, boss.y - boss.radius - 20, healthBarWidth * healthPercentage, healthBarHeight);
+            ctx.fillRect(canvas.width - healthBarWidth - 10, 10, healthBarWidth * healthPercentage, healthBarHeight);
+            ctx.fillStyle = 'white';
+            ctx.font = '16px RetroFont';
+            ctx.textAlign = 'right';
+            ctx.fillText(`Boss: ${boss.health}/350`, canvas.width - 10, 50);
             ctx.restore();
         }
 
