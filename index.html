@@ -271,7 +271,7 @@
         let isPaused = false;
         const pauseMenu = document.getElementById('pauseMenu');
         const resumeButton = document.getElementById('resumeButton');
-        let slowBulletsPowerUps = 3; // Start with 3 uses
+        let slowBulletsPowerUps = 3; 
         let lastCheckpoint = 0;
 
         canvas.width = window.innerWidth;
@@ -281,7 +281,7 @@
         let meteors = [];
         let powerUps = [];
         let killCount = 0;
-        let difficulty = 2; // Default to medium
+        let difficulty = 2; 
         const difficultySettings = {
             1: { name: "Super Fácil", enemySpeedMultiplier: 0.5, bulletSpeedMultiplier: 0.5 },
             2: { name: "Médio", enemySpeedMultiplier: 1, bulletSpeedMultiplier: 1 },
@@ -323,7 +323,8 @@
                 dx: (Math.random() - 0.5) * 2,
                 dy: (Math.random() - 0.5) * 2,
                 rotation: 0,
-                rotationSpeed: (Math.random() - 0.5) * 0.1
+                rotationSpeed: (Math.random() - 0.5) * 0.1,
+                health: 5
             };
         }
 
@@ -355,6 +356,11 @@
                 ctx.stroke();
 
                 ctx.restore();
+
+                ctx.fillStyle = 'red';
+                ctx.fillRect(meteor.x - meteor.radius, meteor.y + meteor.radius + 5, meteor.radius * 2, 5);
+                ctx.fillStyle = 'green';
+                ctx.fillRect(meteor.x - meteor.radius, meteor.y + meteor.radius + 5, (meteor.radius * 2) * (meteor.health / 5), 5);
             });
         }
 
@@ -522,13 +528,13 @@
             lastCheckpoint = 0;
             gameOverElement.style.display = 'none';
             restartButton.style.display = 'none';
-            slowBulletsPowerUps = 3; // Reset slow bullets power-ups
+            slowBulletsPowerUps = 3; 
             updateScore();
             updateKillCount();
             updateWave();
             updateSpecialShots();
             updateLives();
-            updateSlowBulletsIndicator(); // Update slow bullets indicator
+            updateSlowBulletsIndicator(); 
             spawnWave();
         }
 
@@ -896,6 +902,41 @@
                 });
             });
 
+            meteors.forEach((meteor, meteorIndex) => {
+                let dx = player.x - meteor.x;
+                let dy = player.y - meteor.y;
+                let distance = Math.sqrt(dx * dx + dy * dy);
+                if (distance < player.radius + meteor.radius) {
+                    meteorExplosion(meteor.x, meteor.y, meteor.radius);
+                    meteors.splice(meteorIndex, 1);
+                    playerExplode();
+                    gameOver();
+                }
+
+                bullets.forEach((bullet, bulletIndex) => {
+                    dx = bullet.x - meteor.x;
+                    dy = bullet.y - meteor.y;
+                    distance = Math.sqrt(dx * dx + dy * dy);
+                    if (distance < 5 + meteor.radius) {
+                        bullets.splice(bulletIndex, 1);
+                        meteor.health--;
+                        if (meteor.health <= 0) {
+                            meteorExplosion(meteor.x, meteor.y, meteor.radius);
+                            meteors.splice(meteorIndex, 1);
+                        }
+                    }
+                });
+
+                enemyBullets.forEach((bullet, bulletIndex) => {
+                    dx = bullet.x - meteor.x;
+                    dy = bullet.y - meteor.y;
+                    distance = Math.sqrt(dx * dx + dy * dy);
+                    if (distance < 5 + meteor.radius) {
+                        enemyBullets.splice(bulletIndex, 1);
+                    }
+                });
+            });
+
             enemyBullets.forEach((bullet, bulletIndex) => {
                 let dx = bullet.x - player.x;
                 let dy = bullet.y - player.y;
@@ -907,18 +948,6 @@
                         playerTakeDamage();
                     }
                     enemyBullets.splice(bulletIndex, 1);
-                }
-            });
-
-            meteors.forEach((meteor, meteorIndex) => {
-                let dx = player.x - meteor.x;
-                let dy = player.y - meteor.y;
-                let distance = Math.sqrt(dx * dx + dy * dy);
-                if (distance < player.radius + meteor.radius) {
-                    meteorExplosion(meteor.x, meteor.y, meteor.radius);
-                    meteors.splice(meteorIndex, 1);
-                    playerExplode();
-                    gameOver();
                 }
             });
 
@@ -982,7 +1011,7 @@
                 spawnPowerUp();
                 slowBulletsPowerUps++; 
                 updateSlowBulletsIndicator();
-                lastCheckpoint = waveNumber; // Update checkpoint after defeating a boss
+                lastCheckpoint = waveNumber; 
             } else {
                 spawnWave();
             }
@@ -1245,7 +1274,7 @@
             player.shieldTimer = Date.now();
             
             waveNumber = lastCheckpoint;
-            enemiesInWave = 1; // Only spawn the boss
+            enemiesInWave = 1; 
             enemiesKilled = 0;
             enemies = [];
             bullets = [];
@@ -1260,7 +1289,7 @@
             updateSpecialShots();
             updateSlowBulletsIndicator();
             
-            spawnBoss(); // Spawn the boss directly
+            spawnBoss(); 
             
             requestAnimationFrame(gameLoop);
         }
