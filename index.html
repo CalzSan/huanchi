@@ -669,6 +669,17 @@
             spawnWave();
         }
 
+        function resetToWaveOne() {
+            resetGame();
+            waveNumber = 1;
+            enemiesInWave = 2;
+            currentLevel = 1;
+            updateWave();
+            updateLevel();
+            spawnWave();
+            saveProgress();
+        }
+
         function setDifficulty(level) {
             difficulty = level;
             const difficultyDisplay = document.getElementById('difficultyDisplay');
@@ -944,7 +955,7 @@
                 if (distance < ENEMY_FLEE_DISTANCE) {
                     enemy.x -= (dx / distance) * enemy.speed;
                     enemy.y -= (dy / distance) * enemy.speed;
-                } else if (distance < ENEMY_SHOOT_DISTANCE || (enemy.color === 'white' && distance < ENEMY_SHOOT_DISTANCE * 1.5)) {
+                } else if (distance < ENEMY_SHOOT_DISTANCE) {
                     if (Date.now() - enemy.lastShot > enemy.shotInterval) {
                         enemyShoot(enemy);
                         enemy.lastShot = Date.now();
@@ -1545,6 +1556,9 @@
             }
             if (e.code === 'KeyR' && gameState === 'playing') {
                 activateSlowBulletsPower();
+            }
+            if (e.code === 'KeyP' && gameState === 'playing') {
+                resetToWaveOne();
             }
         });
 
