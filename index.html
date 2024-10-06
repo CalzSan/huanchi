@@ -607,6 +607,13 @@
                 lastCheckpoint = progress.lastCheckpoint;
                 applyUpgrades();
                 updateVisuals();
+
+                if (waveNumber % 5 === 0) {
+                    spawnBoss();
+                    document.getElementById('bossHealthBar').style.display = 'block';
+                } else {
+                    spawnWave();
+                }
             }
         }
 
@@ -1210,6 +1217,7 @@
                 slowBulletsPowerUps++; 
                 updateSlowBulletsIndicator();
                 saveProgress(); 
+                document.getElementById('bossHealthBar').style.display = 'block';
             } else {
                 document.getElementById('bossHealthBar').style.display = 'none';
                 spawnWave();
@@ -1309,6 +1317,7 @@
         }
 
         function spawnBoss() {
+            enemies = [];
             let boss = {
                 x: canvas.width / 2,
                 y: -50,
