@@ -346,12 +346,10 @@
         const resumeButton = document.getElementById('resumeButton');
         let slowBulletsPowerUps = 3; 
         let lastCheckpoint = 0;
-        let guidedMissileUses = 3; // Updated initial value
+        let guidedMissileUses = 3; 
         let guidedMissiles = [];
-
         canvas.width = window.innerWidth;
         canvas.height = window.innerHeight;
-
         let stars = [];
         let meteors = [];
         let powerUps = [];
@@ -370,7 +368,6 @@
             shipSpeed: 0,
             specialShotPower: 0
         };
-
         let currentLevel = 1;
 
         function generateStars() {
@@ -505,6 +502,13 @@
                 ctx.strokeStyle = 'rgba(0, 255, 255, 0.7)';
                 ctx.lineWidth = 3;
                 ctx.stroke();
+
+                const pulseSize = Math.sin(Date.now() / 200) * 5;
+                ctx.beginPath();
+                ctx.arc(player.x, player.y, player.radius + 10 + pulseSize, 0, Math.PI * 2);
+                ctx.strokeStyle = 'rgba(0, 255, 255, 0.3)';
+                ctx.lineWidth = 2;
+                ctx.stroke();
             }
         }
 
@@ -607,7 +611,7 @@
             gameOverElement.style.display = 'none';
             restartButton.style.display = 'none';
             slowBulletsPowerUps = 3; 
-            guidedMissileUses = 3; // Updated value
+            guidedMissileUses = 3; 
             updateScore();
             updateKillCount();
             updateWave();
@@ -615,6 +619,77 @@
             updateLives();
             updateSlowBulletsIndicator(); 
             spawnWave();
+        }
+
+        function giveRandomGift() {
+            const gifts = [
+                { type: 'lives', chance: 0.3 },
+                { type: 'guidedMissiles', chance: 0.15 },
+                { type: 'slowBullets', chance: 0.15 },
+                { type: 'specialShots', chance: 0.15 },
+                { type: 'shield', chance: 0.25 }
+            ];
+
+            const randomValue = Math.random();
+            let cumulativeChance = 0;
+
+            for (const gift of gifts) {
+                cumulativeChance += gift.chance;
+                if (randomValue <= cumulativeChance) {
+                    applyGift(gift.type);
+                    break;
+                }
+            }
+        }
+
+        function applyGift(giftType) {
+            let message = '';
+            switch (giftType) {
+                case 'lives':
+                    const livesToAdd = Math.floor(Math.random() * 3) + 1;
+                    player.lives = Math.min(player.lives + livesToAdd, 6);
+                    message = `Ganhou ${livesToAdd} vida${livesToAdd > 1 ? 's' : ''}!`;
+                    break;
+                case 'guidedMissiles':
+                    guidedMissileUses += 1;
+                    message = 'Ganhou 1 Míssil Teleguiado!';
+                    break;
+                case 'slowBullets':
+                    slowBulletsPowerUps += 1;
+                    message = 'Ganhou 1 Tiro Lento!';
+                    break;
+                case 'specialShots':
+                    specialShotsRemaining += 1;
+                    message = 'Ganhou 1 Tiro Especial!';
+                    break;
+                case 'shield':
+                    player.shield = true;
+                    player.shieldTimer = Date.now();
+                    message = 'Escudo ativado por 5 segundos!';
+                    break;
+            }
+            showGiftMessage(message);
+            updateLives();
+            updateSpecialShots();
+            updateGuidedMissileUses();
+            updateSlowBulletsIndicator();
+        }
+
+        function showGiftMessage(message) {
+            const giftMessage = document.createElement('div');
+            giftMessage.textContent = message;
+            giftMessage.style.position = 'absolute';
+            giftMessage.style.top = '30%';
+            giftMessage.style.left = '50%';
+            giftMessage.style.transform = 'translate(-50%, -50%)';
+            giftMessage.style.color = '#FFD700';
+            giftMessage.style.fontSize = '24px';
+            giftMessage.style.textShadow = '2px 2px #000';
+            document.body.appendChild(giftMessage);
+
+            setTimeout(() => {
+                giftMessage.remove();
+            }, 3000);
         }
 
         function setDifficulty(level) {
@@ -841,7 +916,7 @@
                 ctx.closePath();
             });
 
-            ctx.fillStyle = '#00FFFF'; // Guided missiles color
+            ctx.fillStyle = '#00FFFF'; 
             guidedMissiles.forEach(missile => {
                 ctx.beginPath();
                 ctx.arc(missile.x, missile.y, 3, 0, Math.PI * 2);
@@ -976,7 +1051,7 @@
         }
 
         function checkCollisions() {
-            if (player.shield && Date.now() - player.shieldTimer > 3000) {
+            if (player.shield && Date.now() - player.shieldTimer > 5000) {
                 player.shield = false;
             }
 
@@ -985,9 +1060,11 @@
                 let dy = player.y - enemy.y;
                 let distance = Math.sqrt(dx * dx + dy * dy);
                 if (distance < player.radius + enemy.radius) {
-                    playerExplode();
-                    gameOver();
-                    return;
+                    if (!player.shield) {
+                        playerExplode();
+                        gameOver();
+                        return;
+                    }
                 }
 
                 bullets.forEach((bullet, bulletIndex) => {
@@ -1051,8 +1128,10 @@
                 if (distance < player.radius + meteor.radius) {
                     meteorExplosion(meteor.x, meteor.y, meteor.radius);
                     meteors.splice(meteorIndex, 1);
-                    playerExplode();
-                    gameOver();
+                    if (!player.shield) {
+                        playerExplode();
+                        gameOver();
+                    }
                 }
 
                 bullets.forEach((bullet, bulletIndex) => {
@@ -1085,11 +1164,11 @@
                 let distance = Math.sqrt(dx * dx + dy * dy);
                 if (distance < 5 + player.radius) {
                     if (player.shield) {
-                        player.shield = false;
+                        enemyBullets.splice(bulletIndex, 1);
                     } else {
                         playerTakeDamage();
+                        enemyBullets.splice(bulletIndex, 1);
                     }
-                    enemyBullets.splice(bulletIndex, 1);
                 }
             });
 
@@ -1165,6 +1244,7 @@
                 slowBulletsPowerUps++; 
                 updateSlowBulletsIndicator();
                 lastCheckpoint = waveNumber; 
+                giveRandomGift(); 
             } else {
                 document.getElementById('bossHealthBar').style.display = 'none';
                 spawnWave();
