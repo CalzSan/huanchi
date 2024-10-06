@@ -22,7 +22,7 @@
             border: 4px solid #0F0;
             cursor: none;
         }
-        #gameOver, #score, #wave, #restartButton, #specialShots, #loadingScreen, #lobby, #instructions, #lives, #killCount, #slowBulletsIndicator, #level {
+        #gameOver, #score, #wave, #restartButton, #specialShots, #guidedMissileUses, #loadingScreen, #lobby, #instructions, #lives, #killCount, #slowBulletsIndicator, #level {
             position: absolute;
             font-size: 24px;
             color: #0F0;
@@ -49,6 +49,13 @@
             bottom: 40px;
             left: 10px;
         }
+        #guidedMissileUses {
+            bottom: 100px;
+            left: 10px;
+            font-size: 24px;
+            color: #0F0;
+            text-shadow: 2px 2px #00F;
+        }
         #killCount {
             bottom: 10px;
             left: 10px;
@@ -70,11 +77,61 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background-color: rgba(0,0,0,0.8);
+            background: linear-gradient(45deg, #000033, #000066);
             display: flex;
+            flex-direction: column;
             justify-content: center;
             align-items: center;
             z-index: 1000;
+            color: #00ffff;
+        }
+        #loadingScreen h1 {
+            font-size: 72px;
+            text-shadow: 0 0 10px #00ffff, 0 0 20px #00ffff, 0 0 30px #00ffff;
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+        #loadingBar {
+            width: 300px;
+            height: 20px;
+            background-color: rgba(0, 255, 255, 0.2);
+            border: 2px solid #00ffff;
+            box-shadow: 0 0 10px #00ffff;
+        }
+        #loadingProgress {
+            height: 100%;
+            background: linear-gradient(90deg, #00ffff, #0000ff);
+            width: 0%;
+            transition: width 0.5s;
+            box-shadow: 0 0 15px #00ffff;
+        }
+        #gameVersion {
+            position: absolute;
+            bottom: 10px;
+            right: 10px;
+            color: #0F0;
+            font-size: 16px;
+            text-shadow: 0 0 5px #00ffff;
+        }
+        #bossHealthBar {
+            position: absolute;
+            top: 50px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 300px;
+            height: 20px;
+            background-color: #600;
+            border: 2px solid #F00;
+            display: none;
+        }
+        #bossHealth {
+            height: 100%;
+            background-color: #F00;
+            width: 100%;
         }
         #lobby {
             position: absolute;
@@ -82,7 +139,7 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background-color: rgba(0,0,0,0.9);
+            background: radial-gradient(circle, #000066, #000033);
             display: none;
             justify-content: center;
             align-items: center;
@@ -90,23 +147,28 @@
             z-index: 999;
         }
         #lobby h1 {
-            color: #0F0;
-            font-size: 48px;
-            text-shadow: 3px 3px #00F;
+            font-size: 84px;
+            text-shadow: 0 0 15px #00ffff, 0 0 30px #00ffff;
+            animation: glow 3s infinite alternate;
         }
-        #lobby h2 {
-            color: #0F0;
+        @keyframes glow {
+            from { text-shadow: 0 0 15px #00ffff, 0 0 30px #00ffff; }
+            to { text-shadow: 0 0 25px #00ffff, 0 0 50px #00ffff; }
+        }
+        #startButton {
             font-size: 24px;
-            margin-bottom: 20px;
+            padding: 15px 30px;
+            background: linear-gradient(45deg, #00ff00, #008800);
+            border: none;
+            border-radius: 50px;
+            color: #000033;
+            text-shadow: 1px 1px #00ff00;
+            box-shadow: 0 0 20px #00ff00;
+            transition: all 0.3s ease;
         }
-        #startButton, #restartButton {
-            background-color: #0F0;
-            color: #000;
-            border: 2px solid #00F;
-            padding: 10px 20px;
-            font-family: 'RetroFont', Arial, sans-serif;
-            font-size: 18px;
-            cursor: pointer;
+        #startButton:hover {
+            transform: scale(1.1);
+            box-shadow: 0 0 30px #00ff00;
         }
         #instructions {
             position: absolute;
@@ -218,35 +280,15 @@
             color: #0F0;
             text-shadow: 2px 2px #00F;
         }
-        #level {
-            position: absolute;
-            top: 40px;
-            left: 10px;
-            font-size: 24px;
-            color: #0F0;
-            text-shadow: 2px 2px #00F;
-        }
-        #bossHealthBar {
-            position: absolute;
-            top: 50px;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 300px;
-            height: 20px;
-            background-color: #333;
-            border: 2px solid #0F0;
-            display: none;
-        }
-        #bossHealthBarInner {
-            height: 100%;
-            background-color: #0F0;
-            width: 100%;
-        }
     </style>
 </head>
 <body>
     <div id="loadingScreen">
-        <div style="color: white; font-size: 24px;">Carregando... <span id="loadingProgress">0</span>%</div>
+        <h1>HUANCHI</h1>
+        <div id="loadingBar">
+            <div id="loadingProgress"></div>
+        </div>
+        <div id="gameVersion">v4.7.3</div>
     </div>
     <div id="lobby">
         <h1>HUANCHI</h1>
@@ -260,6 +302,7 @@
             <li>Use o mouse para mover a nave</li>
             <li>Clique para atirar</li>
             <li>Pressione T para usar o tiro especial</li>
+            <li>Pressione Y para mísseis teleguiados</li>
             <li>Pressione 1-5 para mudar a dificuldade</li>
             <li>Evite colisões com inimigos e meteoros</li>
             <li>Colete corações para ganhar vidas extras</li>
@@ -273,26 +316,20 @@
     <div id="score">Pontuação: 0</div>
     <div id="killCount">Abates: 0</div>
     <div id="wave">Onda: 1</div>
+    <div id="level" style="position: absolute; top: 40px; left: 10px; font-size: 24px; color: #0F0; text-shadow: 2px 2px #00F;">Nível: 1</div>
     <div id="specialShots">Tiros Especiais (Tecla T): 3</div>
+    <div id="guidedMissileUses">Mísseis Teleguiados (Tecla Y): 3</div>
     <div id="slowBulletsIndicator">Tiros Lentos (Tecla R): Pronto</div>
-    <div id="level">Nível: 1</div>
     <div id="gameOver">Fim de Jogo!<br><span style="font-size: 24px;">Pressione E para enfrentar o último chefão novamente</span></div>
     <button id="restartButton">Reiniciar</button>
     <div id="instructions">Pressione ESPAÇO para atirar e T para o tiro especial</div>
     <div id="lives">❤️❤️❤️</div>
     <div id="difficultyDisplay"></div>
     <div id="bossHealthBar">
-        <div id="bossHealthBarInner"></div>
+        <div id="bossHealth"></div>
     </div>
 
     <script>
-        let level = 1;
-
-        function updateLevel() {
-            const levelElement = document.getElementById('level');
-            levelElement.textContent = `Nível: ${level}`;
-        }
-
         const WHITE_ENEMY_BULLET_MAX_DISTANCE = 300;
         const canvas = document.getElementById('gameCanvas');
         const ctx = canvas.getContext('2d');
@@ -300,6 +337,7 @@
         const killCountElement = document.getElementById('killCount');
         const waveElement = document.getElementById('wave');
         const specialShotsElement = document.getElementById('specialShots');
+        const guidedMissileElement = document.getElementById('guidedMissileUses');
         const gameOverElement = document.getElementById('gameOver');
         const restartButton = document.getElementById('restartButton');
         const slowBulletsIndicator = document.getElementById('slowBulletsIndicator');
@@ -308,6 +346,8 @@
         const resumeButton = document.getElementById('resumeButton');
         let slowBulletsPowerUps = 3; 
         let lastCheckpoint = 0;
+        let guidedMissileUses = 3; // Updated initial value
+        let guidedMissiles = [];
 
         canvas.width = window.innerWidth;
         canvas.height = window.innerHeight;
@@ -331,15 +371,7 @@
             specialShotPower: 0
         };
 
-        const difficultyScaling = {
-            enemySpeedMultiplier: 1 + (level - 1) * 0.1,
-            bulletSpeedMultiplier: 1 + (level - 1) * 0.1
-        };
-
-        function updateDifficultyScaling() {
-            difficultyScaling.enemySpeedMultiplier = 1 + (level - 1) * 0.1;
-            difficultyScaling.bulletSpeedMultiplier = 1 + (level - 1) * 0.1;
-        }
+        let currentLevel = 1;
 
         function generateStars() {
             for (let i = 0; i < 100; i++) {
@@ -516,7 +548,7 @@
             
             const loadingInterval = setInterval(() => {
                 progress += 100 / 80;
-                loadingProgress.textContent = Math.min(Math.round(progress), 100);
+                loadingProgress.style.width = `${Math.min(progress, 100)}%`;
                 
                 if (progress >= 100) {
                     clearInterval(loadingInterval);
@@ -557,6 +589,7 @@
             enemies = [];
             bullets = [];
             enemyBullets = [];
+            guidedMissiles = [];
             score = 0;
             waveNumber = 1;
             enemiesInWave = 1;
@@ -571,12 +604,10 @@
             };
             gameRunning = true;
             lastCheckpoint = 0;
-            level = 1;
-            updateLevel();
-            updateDifficultyScaling();
             gameOverElement.style.display = 'none';
             restartButton.style.display = 'none';
             slowBulletsPowerUps = 3; 
+            guidedMissileUses = 3; // Updated value
             updateScore();
             updateKillCount();
             updateWave();
@@ -616,18 +647,18 @@
 
             if (enemyType < 0.4) {
                 enemy.color = 'red';
-                enemy.speed = player.speed * (0.8 + Math.random() * 0.4) * difficultySettings[difficulty].enemySpeedMultiplier * difficultyScaling.enemySpeedMultiplier;
-                enemy.shotInterval = 1000 / (difficultySettings[difficulty].bulletSpeedMultiplier * difficultyScaling.bulletSpeedMultiplier);
+                enemy.speed = player.speed * (0.8 + Math.random() * 0.4) * difficultySettings[difficulty].enemySpeedMultiplier;
+                enemy.shotInterval = 1000 / difficultySettings[difficulty].bulletSpeedMultiplier;
                 enemy.projectiles = 1;
             } else if (enemyType < 0.7) {
                 enemy.color = 'yellow';
-                enemy.speed = player.speed * 0.5 * difficultySettings[difficulty].enemySpeedMultiplier * difficultyScaling.enemySpeedMultiplier;
-                enemy.shotInterval = 500 / (difficultySettings[difficulty].bulletSpeedMultiplier * difficultyScaling.bulletSpeedMultiplier);
+                enemy.speed = player.speed * 0.5 * difficultySettings[difficulty].enemySpeedMultiplier;
+                enemy.shotInterval = 500 / difficultySettings[difficulty].bulletSpeedMultiplier;
                 enemy.projectiles = 3;
             } else {
                 enemy.color = 'white';
-                enemy.speed = player.speed * 1.2 * difficultySettings[difficulty].enemySpeedMultiplier * difficultyScaling.enemySpeedMultiplier;
-                enemy.shotInterval = 500 / (difficultySettings[difficulty].bulletSpeedMultiplier * difficultyScaling.bulletSpeedMultiplier);
+                enemy.speed = player.speed * 1.2 * difficultySettings[difficulty].enemySpeedMultiplier;
+                enemy.shotInterval = 500 / difficultySettings[difficulty].bulletSpeedMultiplier;
                 enemy.projectiles = 5;
             }
 
@@ -657,7 +688,7 @@
         }
 
         function enemyShoot(enemy) {
-            let speed = 5 * difficultySettings[difficulty].bulletSpeedMultiplier * difficultyScaling.bulletSpeedMultiplier;
+            let speed = 5 * difficultySettings[difficulty].bulletSpeedMultiplier;
             let dx = player.x - enemy.x;
             let dy = player.y - enemy.y;
             let distance = Math.sqrt(dx * dx + dy * dy);
@@ -809,6 +840,13 @@
                 ctx.fill();
                 ctx.closePath();
             });
+
+            ctx.fillStyle = '#00FFFF'; // Guided missiles color
+            guidedMissiles.forEach(missile => {
+                ctx.beginPath();
+                ctx.arc(missile.x, missile.y, 3, 0, Math.PI * 2);
+                ctx.fill();
+            });
         }
 
         function drawPowerUps() {
@@ -900,6 +938,41 @@
             if (slowBulletsPowerActive && Date.now() - slowBulletsPowerTimer > 5000) {
                 slowBulletsPowerActive = false;
             }
+
+            updateGuidedMissiles();
+        }
+
+        function updateGuidedMissiles() {
+            guidedMissiles.forEach((missile, index) => {
+                if (!missile.target || !enemies.includes(missile.target)) {
+                    missile.target = enemies[Math.floor(Math.random() * enemies.length)];
+                }
+                
+                if (missile.target) {
+                    let dx = missile.target.x - missile.x;
+                    let dy = missile.target.y - missile.y;
+                    let distance = Math.sqrt(dx * dx + dy * dy);
+                    
+                    missile.x += (dx / distance) * missile.speed;
+                    missile.y += (dy / distance) * missile.speed;
+
+                    if (distance < missile.target.radius + 3) {
+                        guidedMissiles.splice(index, 1);
+                        if (missile.target.color !== 'cyan') {
+                            enemies.splice(enemies.indexOf(missile.target), 1);
+                            createExplosion(missile.target.x, missile.target.y);
+                            score += 10;
+                            enemiesKilled++;
+                            killCount++;
+                            updateKillCount();
+                            updateScore();
+                            checkWaveCompletion();
+                        }
+                    }
+                } else {
+                    guidedMissiles.splice(index, 1);
+                }
+            });
         }
 
         function checkCollisions() {
@@ -933,7 +1006,6 @@
                                     killCount++; 
                                     updateKillCount(); 
                                     startNextWave();
-                                    hideBossHealthBar();
                                 }
                             }
                         } else {
@@ -947,6 +1019,27 @@
                         bullets.splice(bulletIndex, 1);
                         updateScore();
                         checkWaveCompletion();
+                    }
+                });
+            });
+
+            guidedMissiles.forEach((missile, missileIndex) => {
+                enemies.forEach((enemy, enemyIndex) => {
+                    if (enemy.color !== 'cyan') {
+                        let dx = missile.x - enemy.x;
+                        let dy = missile.y - enemy.y;
+                        let distance = Math.sqrt(dx * dx + dy * dy);
+                        if (distance < enemy.radius + 3) {
+                            guidedMissiles.splice(missileIndex, 1);
+                            enemies.splice(enemyIndex, 1);
+                            createExplosion(enemy.x, enemy.y);
+                            score += 10;
+                            enemiesKilled++;
+                            killCount++;
+                            updateKillCount();
+                            updateScore();
+                            checkWaveCompletion();
+                        }
                     }
                 });
             });
@@ -1028,6 +1121,10 @@
             specialShotsElement.textContent = `Tiros Especiais (Tecla T): ${specialShotsRemaining}`;
         }
 
+        function updateGuidedMissileUses() {
+            guidedMissileElement.textContent = `Mísseis Teleguiados (Tecla Y): ${guidedMissileUses}`;
+        }
+
         function updateSlowBulletsIndicator() {
             if (slowBulletsPowerActive) {
                 const remainingTime = Math.max(0, 5 - Math.floor((Date.now() - slowBulletsPowerTimer) / 1000));
@@ -1050,22 +1147,26 @@
             }
         }
 
+        function updateLevel() {
+            currentLevel = Math.floor((waveNumber - 1) / 5) + 1;
+            const levelElement = document.getElementById('level');
+            levelElement.textContent = `Nível: ${currentLevel}`;
+        }
+
         function startNextWave() {
             waveNumber++;
             enemiesInWave = Math.min(20, waveNumber * 2);
             enemiesKilled = 0;
             updateWave();
+            updateLevel(); 
             if (waveNumber % 5 === 0) {
                 spawnBoss();
                 spawnPowerUp();
-                slowBulletsPowerUps++;
+                slowBulletsPowerUps++; 
                 updateSlowBulletsIndicator();
-                lastCheckpoint = waveNumber;
-                level++;
-                updateLevel();
-                updateDifficultyScaling();
-                showLevelUpMessage();
+                lastCheckpoint = waveNumber; 
             } else {
+                document.getElementById('bossHealthBar').style.display = 'none';
                 spawnWave();
             }
             if (waveNumber % 3 === 0) {
@@ -1081,20 +1182,27 @@
             }
         }
 
-        function showLevelUpMessage() {
-            const levelUpMessage = document.createElement('div');
-            levelUpMessage.textContent = `Nível ${level}! Dificuldade aumentada!`;
-            levelUpMessage.style.position = 'absolute';
-            levelUpMessage.style.top = '50%';
-            levelUpMessage.style.left = '50%';
-            levelUpMessage.style.transform = 'translate(-50%, -50%)';
-            levelUpMessage.style.color = '#0F0';
-            levelUpMessage.style.fontSize = '36px';
-            levelUpMessage.style.textShadow = '2px 2px #00F';
-            document.body.appendChild(levelUpMessage);
+        function showUpgradeMessage(upgradeType) {
+            const upgradeMessages = {
+                fireRate: 'Taxa de tiro aumentada!',
+                bulletSpeed: 'Velocidade do tiro aumentada!',
+                shipSpeed: 'Velocidade da nave aumentada!',
+                specialShotPower: 'Poder do tiro especial aumentado!'
+            };
+
+            const upgradeMessage = document.createElement('div');
+            upgradeMessage.textContent = upgradeMessages[upgradeType];
+            upgradeMessage.style.position = 'absolute';
+            upgradeMessage.style.top = '50%';
+            upgradeMessage.style.left = '50%';
+            upgradeMessage.style.transform = 'translate(-50%, -50%)';
+            upgradeMessage.style.color = '#0F0';
+            upgradeMessage.style.fontSize = '24px';
+            upgradeMessage.style.textShadow = '2px 2px #00F';
+            document.body.appendChild(upgradeMessage);
 
             setTimeout(() => {
-                levelUpMessage.remove();
+                upgradeMessage.remove();
             }, 3000);
         }
 
@@ -1110,6 +1218,21 @@
                 y: Math.random() * canvas.height,
                 radius: 15
             });
+        }
+
+        function fireGuidedMissiles() {
+            if (guidedMissileUses > 0) {
+                for (let i = 0; i < 2; i++) {
+                    guidedMissiles.push({
+                        x: player.x,
+                        y: player.y,
+                        speed: 5,
+                        target: null
+                    });
+                }
+                guidedMissileUses--;
+                updateGuidedMissileUses();
+            }
         }
 
         function shoot() {
@@ -1146,15 +1269,16 @@
                 y: -50,
                 radius: 30,
                 color: 'cyan',
-                speed: player.speed * 0.7 * difficultyScaling.enemySpeedMultiplier,
-                health: 350 + (level - 1) * 50,
+                speed: player.speed * 0.7,
+                health: 350,
+                maxHealth: 350,
                 lastShot: 0,
-                shotInterval: 1667 / difficultyScaling.bulletSpeedMultiplier,
+                shotInterval: 1667,
                 shieldActive: false,
                 lastShieldToggle: 0
             };
             enemies.push(boss);
-            showBossHealthBar();
+            document.getElementById('bossHealthBar').style.display = 'block';
         }
 
         function updateBoss(boss) {
@@ -1173,6 +1297,9 @@
                 boss.shieldActive = !boss.shieldActive;
                 boss.lastShieldToggle = Date.now();
             }
+
+            const bossHealthBar = document.getElementById('bossHealth');
+            bossHealthBar.style.width = `${(boss.health / boss.maxHealth) * 100}%`;
         }
 
         function bossShoot(boss) {
@@ -1182,8 +1309,8 @@
                         enemyBullets.push({
                             x: boss.x,
                             y: boss.y,
-                            dx: Math.cos(angle) * 5 * difficultySettings[difficulty].bulletSpeedMultiplier * difficultyScaling.bulletSpeedMultiplier,
-                            dy: Math.sin(angle) * 5 * difficultySettings[difficulty].bulletSpeedMultiplier * difficultyScaling.bulletSpeedMultiplier
+                            dx: Math.cos(angle) * 5 * difficultySettings[difficulty].bulletSpeedMultiplier,
+                            dy: Math.sin(angle) * 5 * difficultySettings[difficulty].bulletSpeedMultiplier
                         });
                     }
                 }, volley * 200);
@@ -1279,7 +1406,6 @@
             if (boss) {
                 updateBoss(boss);
                 drawBoss(boss);
-                updateBossHealthBar(boss);
             }
 
             requestAnimationFrame(gameLoop);
@@ -1358,6 +1484,9 @@
             if (e.code === 'KeyT' && gameState === 'playing') {
                 specialShot();
             }
+            if (e.code === 'KeyY' && gameState === 'playing') {
+                fireGuidedMissiles();
+            }
             if (e.code >= 'Digit1' && e.code <= 'Digit5' && gameState === 'playing') {
                 setDifficulty(parseInt(e.key));
             }
@@ -1428,21 +1557,9 @@
             let BB = ((B.toString(16).length==1)?"0"+B.toString(16):B.toString(16));
             return "#"+RR+GG+BB;
         }
-
+        
         let slowBulletsPowerActive = false;
         let slowBulletsPowerTimer = 0;
 
-        function showBossHealthBar() {
-            document.getElementById('bossHealthBar').style.display = 'block';
-        }
-
-        function hideBossHealthBar() {
-            document.getElementById('bossHealthBar').style.display = 'none';
-        }
-
-        function updateBossHealthBar(boss) {
-            const healthPercentage = (boss.health / 350) * 100;
-            document.getElementById('bossHealthBarInner').style.width = `${healthPercentage}%`;
-        }
     </script>
 </body></html>
