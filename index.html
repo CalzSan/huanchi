@@ -348,8 +348,10 @@
         let lastCheckpoint = 0;
         let guidedMissileUses = 3; 
         let guidedMissiles = [];
+
         canvas.width = window.innerWidth;
         canvas.height = window.innerHeight;
+
         let stars = [];
         let meteors = [];
         let powerUps = [];
@@ -368,6 +370,7 @@
             shipSpeed: 0,
             specialShotPower: 0
         };
+
         let currentLevel = 1;
 
         function generateStars() {
@@ -502,13 +505,6 @@
                 ctx.strokeStyle = 'rgba(0, 255, 255, 0.7)';
                 ctx.lineWidth = 3;
                 ctx.stroke();
-
-                const pulseSize = Math.sin(Date.now() / 200) * 5;
-                ctx.beginPath();
-                ctx.arc(player.x, player.y, player.radius + 10 + pulseSize, 0, Math.PI * 2);
-                ctx.strokeStyle = 'rgba(0, 255, 255, 0.3)';
-                ctx.lineWidth = 2;
-                ctx.stroke();
             }
         }
 
@@ -576,8 +572,53 @@
             isPaused = false;
             document.body.style.cursor = 'none';
             resetGame();
+            loadProgress();  
             generateStars();
             gameLoop();
+            saveProgress(); 
+        }
+
+        function saveProgress() {
+            localStorage.setItem('gameProgress', JSON.stringify({
+                score: score,
+                lives: player.lives,
+                waveNumber: waveNumber,
+                killCount: killCount,
+                specialShotsRemaining: specialShotsRemaining,
+                guidedMissileUses: guidedMissileUses,
+                slowBulletsPowerUps: slowBulletsPowerUps,
+                upgrades: upgrades,
+                lastCheckpoint: waveNumber
+            }));
+        }
+
+        function loadProgress() {
+            const savedProgress = localStorage.getItem('gameProgress');
+            if (savedProgress) {
+                const progress = JSON.parse(savedProgress);
+                score = progress.score;
+                player.lives = progress.lives;
+                waveNumber = progress.lastCheckpoint;
+                killCount = progress.killCount;
+                specialShotsRemaining = progress.specialShotsRemaining;
+                guidedMissileUses = progress.guidedMissileUses;
+                slowBulletsPowerUps = progress.slowBulletsPowerUps;
+                upgrades = progress.upgrades;
+                lastCheckpoint = progress.lastCheckpoint;
+                applyUpgrades();
+                updateVisuals();
+            }
+        }
+
+        function updateVisuals() {
+            updateScore();
+            updateLives();
+            updateWave();
+            updateKillCount();
+            updateSpecialShots();
+            updateGuidedMissileUses();
+            updateSlowBulletsIndicator();
+            updateLevel();
         }
 
         document.getElementById('startButton').addEventListener('click', startGame);
@@ -619,77 +660,6 @@
             updateLives();
             updateSlowBulletsIndicator(); 
             spawnWave();
-        }
-
-        function giveRandomGift() {
-            const gifts = [
-                { type: 'lives', chance: 0.3 },
-                { type: 'guidedMissiles', chance: 0.15 },
-                { type: 'slowBullets', chance: 0.15 },
-                { type: 'specialShots', chance: 0.15 },
-                { type: 'shield', chance: 0.25 }
-            ];
-
-            const randomValue = Math.random();
-            let cumulativeChance = 0;
-
-            for (const gift of gifts) {
-                cumulativeChance += gift.chance;
-                if (randomValue <= cumulativeChance) {
-                    applyGift(gift.type);
-                    break;
-                }
-            }
-        }
-
-        function applyGift(giftType) {
-            let message = '';
-            switch (giftType) {
-                case 'lives':
-                    const livesToAdd = Math.floor(Math.random() * 3) + 1;
-                    player.lives = Math.min(player.lives + livesToAdd, 6);
-                    message = `Ganhou ${livesToAdd} vida${livesToAdd > 1 ? 's' : ''}!`;
-                    break;
-                case 'guidedMissiles':
-                    guidedMissileUses += 1;
-                    message = 'Ganhou 1 Míssil Teleguiado!';
-                    break;
-                case 'slowBullets':
-                    slowBulletsPowerUps += 1;
-                    message = 'Ganhou 1 Tiro Lento!';
-                    break;
-                case 'specialShots':
-                    specialShotsRemaining += 1;
-                    message = 'Ganhou 1 Tiro Especial!';
-                    break;
-                case 'shield':
-                    player.shield = true;
-                    player.shieldTimer = Date.now();
-                    message = 'Escudo ativado por 5 segundos!';
-                    break;
-            }
-            showGiftMessage(message);
-            updateLives();
-            updateSpecialShots();
-            updateGuidedMissileUses();
-            updateSlowBulletsIndicator();
-        }
-
-        function showGiftMessage(message) {
-            const giftMessage = document.createElement('div');
-            giftMessage.textContent = message;
-            giftMessage.style.position = 'absolute';
-            giftMessage.style.top = '30%';
-            giftMessage.style.left = '50%';
-            giftMessage.style.transform = 'translate(-50%, -50%)';
-            giftMessage.style.color = '#FFD700';
-            giftMessage.style.fontSize = '24px';
-            giftMessage.style.textShadow = '2px 2px #000';
-            document.body.appendChild(giftMessage);
-
-            setTimeout(() => {
-                giftMessage.remove();
-            }, 3000);
         }
 
         function setDifficulty(level) {
@@ -1051,7 +1021,7 @@
         }
 
         function checkCollisions() {
-            if (player.shield && Date.now() - player.shieldTimer > 5000) {
+            if (player.shield && Date.now() - player.shieldTimer > 3000) {
                 player.shield = false;
             }
 
@@ -1060,11 +1030,9 @@
                 let dy = player.y - enemy.y;
                 let distance = Math.sqrt(dx * dx + dy * dy);
                 if (distance < player.radius + enemy.radius) {
-                    if (!player.shield) {
-                        playerExplode();
-                        gameOver();
-                        return;
-                    }
+                    playerExplode();
+                    gameOver();
+                    return;
                 }
 
                 bullets.forEach((bullet, bulletIndex) => {
@@ -1128,10 +1096,8 @@
                 if (distance < player.radius + meteor.radius) {
                     meteorExplosion(meteor.x, meteor.y, meteor.radius);
                     meteors.splice(meteorIndex, 1);
-                    if (!player.shield) {
-                        playerExplode();
-                        gameOver();
-                    }
+                    playerExplode();
+                    gameOver();
                 }
 
                 bullets.forEach((bullet, bulletIndex) => {
@@ -1164,11 +1130,11 @@
                 let distance = Math.sqrt(dx * dx + dy * dy);
                 if (distance < 5 + player.radius) {
                     if (player.shield) {
-                        enemyBullets.splice(bulletIndex, 1);
+                        player.shield = false;
                     } else {
                         playerTakeDamage();
-                        enemyBullets.splice(bulletIndex, 1);
                     }
+                    enemyBullets.splice(bulletIndex, 1);
                 }
             });
 
@@ -1243,8 +1209,7 @@
                 spawnPowerUp();
                 slowBulletsPowerUps++; 
                 updateSlowBulletsIndicator();
-                lastCheckpoint = waveNumber; 
-                giveRandomGift(); 
+                saveProgress(); 
             } else {
                 document.getElementById('bossHealthBar').style.display = 'none';
                 spawnWave();
@@ -1521,27 +1486,20 @@
             gameOverElement.style.display = 'none';
             document.body.style.cursor = 'none';
 
-            player.lives = 6;
+            loadProgress(); 
+
             player.x = canvas.width / 2;
             player.y = canvas.height / 2;
             player.shield = true;
             player.shieldTimer = Date.now();
             
-            waveNumber = lastCheckpoint;
-            enemiesInWave = 1; 
-            enemiesKilled = 0;
             enemies = [];
             bullets = [];
             enemyBullets = [];
             meteors = [];
             powerUps = [];
             
-            updateLives();
-            updateWave();
-            updateScore();
-            updateKillCount();
-            updateSpecialShots();
-            updateSlowBulletsIndicator();
+            updateVisuals();
             
             spawnBoss(); 
             
@@ -1620,7 +1578,10 @@
             canvas.height = window.innerHeight;
         });
 
-        window.addEventListener('load', showLoadingScreen);
+        window.addEventListener('load', () => {
+            showLoadingScreen();
+            loadProgress();
+        });
 
         function shadeColor(color, percent) {
             let R = parseInt(color.substring(1,3),16);
