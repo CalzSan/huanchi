@@ -581,7 +581,6 @@
         function saveProgress() {
             localStorage.setItem('gameProgress', JSON.stringify({
                 score: score,
-                lives: player.lives,
                 waveNumber: waveNumber,
                 killCount: killCount,
                 specialShotsRemaining: specialShotsRemaining,
@@ -597,7 +596,6 @@
             if (savedProgress) {
                 const progress = JSON.parse(savedProgress);
                 score = progress.score;
-                player.lives = progress.lives;
                 waveNumber = progress.lastCheckpoint;
                 killCount = progress.killCount;
                 specialShotsRemaining = progress.specialShotsRemaining;
@@ -1499,6 +1497,7 @@
 
             player.x = canvas.width / 2;
             player.y = canvas.height / 2;
+            player.lives = 6; // Reset lives to full
             player.shield = true;
             player.shieldTimer = Date.now();
             
@@ -1506,7 +1505,6 @@
             bullets = [];
             enemyBullets = [];
             meteors = [];
-            powerUps = [];
             
             updateVisuals();
             
