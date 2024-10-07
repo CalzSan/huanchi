@@ -566,7 +566,6 @@
             dy: 0,
             lives: 6,
             shield: false,
-            shieldTimer: 0,
             shieldHealth: 0
         };
 
@@ -739,7 +738,7 @@
                 guidedMissileUses += 50;
                 specialShotsRemaining += 50;
                 player.shield = true;
-                player.shieldHealth = 15;
+                player.shieldHealth = 15; 
                 updateLives();
                 updateSpecialShots();
                 updateGuidedMissileUses();
@@ -787,7 +786,7 @@
             player.dy = 0;
             player.lives = battlePassActive ? 5 : 6;
             player.shield = false;
-            player.shieldTimer = 0;
+            player.shieldHealth = 0;
             enemies = [];
             bullets = [];
             enemyBullets = [];
@@ -1659,7 +1658,7 @@
             player.y = canvas.height / 2;
             player.lives = battlePassActive ? 5 : 3;
             player.shield = true;
-            player.shieldTimer = Date.now();
+            player.shieldHealth = 15; 
             
             enemies = [];
             bullets = [];
