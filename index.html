@@ -289,6 +289,20 @@
             color: #0F0;
             text-shadow: 2px 2px #00F;
         }
+        #updateNotes {
+            display: none;
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.8);
+            color: #0F0;
+            text-align: center;
+            padding: 20px;
+            box-sizing: border-box;
+            z-index: 1001;
+        }
     </style>
 </head>
 <body>
@@ -298,6 +312,16 @@
             <div id="loadingProgress"></div>
         </div>
         <div id="gameVersion">v4.7.3</div>
+    </div>
+    <div id="updateNotes">
+        <h2>NOTAS DA ATUALIZAÇÃO</h2>
+        <h3>NOVO PASSE DE BATALHA</h3>
+        <ul style="list-style-type: none; padding: 0;">
+            <li>2 vidas extras (total de 5 vidas)</li>
+            <li>+50 power-ups de cada tipo</li>
+            <li>Escudo especial que aguenta 15 hits</li>
+        </ul>
+        <button id="closeUpdateNotes" style="padding: 10px 20px; background-color: #0F0; color: #000; border: none; cursor: pointer; margin-top: 20px;">Continuar</button>
     </div>
     <div id="lobby">
         <h1>HUANCHI</h1>
@@ -320,6 +344,17 @@
             <li>Pressione R para ativar tiros inimigos lentos</li>
         </ul>
         <button id="resumeButton">Continuar</button>
+        <div id="battlePassInfo">
+            <h3>Passe de Batalha</h3>
+            <p>Benefícios:</p>
+            <ul>
+                <li>5 vidas</li>
+                <li>+50 power-ups de cada tipo</li>
+                <li>Escudo que aguenta 15 hits</li>
+            </ul>
+            <p>Para adquirir, contate: 11953513188</p>
+            <p>Preço: R$ 2,50</p>
+        </div>
     </div>
     <canvas id="gameCanvas"></canvas>
     <div id="score">Pontuação: 0</div>
@@ -340,6 +375,7 @@
     </div>
 
     <script>
+        let battlePassActive = false;
         const WHITE_ENEMY_BULLET_MAX_DISTANCE = 300;
         const canvas = document.getElementById('gameCanvas');
         const ctx = canvas.getContext('2d');
@@ -530,14 +566,15 @@
             dy: 0,
             lives: 6,
             shield: false,
-            shieldTimer: 0
+            shieldTimer: 0,
+            shieldHealth: 0
         };
 
         function updateLives() {
             const livesElement = document.getElementById('lives');
-            const fullHearts = Math.floor(player.lives / 2);
-            const halfHeart = player.lives % 2;
-            livesElement.textContent = '❤️'.repeat(fullHearts) + (halfHeart ? '💔' : '');
+            const maxLives = battlePassActive ? 5 : 3;
+            const fullHearts = Math.min(player.lives, maxLives);
+            livesElement.textContent = '❤️'.repeat(fullHearts);
         }
 
         function playerTakeDamage() {
@@ -553,9 +590,13 @@
             if (player.shield) {
                 ctx.beginPath();
                 ctx.arc(player.x, player.y, player.radius + 10, 0, Math.PI * 2);
-                ctx.strokeStyle = 'rgba(0, 255, 255, 0.7)';
+                ctx.strokeStyle = `rgba(0, 255, 255, ${player.shieldHealth / 15})`;
                 ctx.lineWidth = 3;
                 ctx.stroke();
+                
+                ctx.fillStyle = '#0FF';
+                ctx.font = '12px RetroFont';
+                ctx.fillText(`Shield: ${player.shieldHealth}`, player.x - 20, player.y + player.radius + 20);
             }
         }
 
@@ -603,11 +644,21 @@
                 
                 if (progress >= 100) {
                     clearInterval(loadingInterval);
-                    gameState = 'lobby';
                     loadingScreen.style.display = 'none';
-                    showLobby();
+                    showUpdateNotes();
                 }
             }, 100);
+        }
+
+        function showUpdateNotes() {
+            const updateNotes = document.getElementById('updateNotes');
+            updateNotes.style.display = 'block';
+            
+            document.getElementById('closeUpdateNotes').addEventListener('click', () => {
+                updateNotes.style.display = 'none';
+                gameState = 'lobby';
+                showLobby();
+            });
         }
 
         function showLobby() {
@@ -627,6 +678,7 @@
             generateStars();
             gameLoop();
             saveProgress(); 
+            updatePauseMenu();
         }
 
         function saveProgress() {
@@ -638,7 +690,8 @@
                 guidedMissileUses: guidedMissileUses,
                 slowBulletsPowerUps: slowBulletsPowerUps,
                 upgrades: upgrades,
-                lastCheckpoint: waveNumber
+                lastCheckpoint: waveNumber,
+                battlePassActive: battlePassActive  
             }));
         }
 
@@ -654,6 +707,7 @@
                 slowBulletsPowerUps = progress.slowBulletsPowerUps;
                 upgrades = progress.upgrades;
                 lastCheckpoint = progress.lastCheckpoint;
+                battlePassActive = progress.battlePassActive;  
                 applyUpgrades();
                 updateVisuals();
 
@@ -677,6 +731,53 @@
             updateLevel();
         }
 
+        function activateBattlePass(code) {
+            if (code === '66778899' && !battlePassActive) {
+                battlePassActive = true;
+                player.lives = 5;  
+                slowBulletsPowerUps += 50;
+                guidedMissileUses += 50;
+                specialShotsRemaining += 50;
+                player.shield = true;
+                player.shieldHealth = 15;
+                updateLives();
+                updateSpecialShots();
+                updateGuidedMissileUses();
+                updateSlowBulletsIndicator();
+                showBattlePassActivatedMessage();
+            } else if (battlePassActive) {
+                showBattlePassAlreadyActivatedMessage();
+            }
+        }
+
+        function showBattlePassActivatedMessage() {
+            const message = document.createElement('div');
+            message.textContent = 'Passe de Batalha Ativado!';
+            message.style.position = 'absolute';
+            message.style.top = '50%';
+            message.style.left = '50%';
+            message.style.transform = 'translate(-50%, -50%)';
+            message.style.color = '#0FF';
+            message.style.fontSize = '36px';
+            message.style.textShadow = '2px 2px #00F';
+            document.body.appendChild(message);
+            setTimeout(() => message.remove(), 3000);
+        }
+
+        function showBattlePassAlreadyActivatedMessage() {
+            const message = document.createElement('div');
+            message.textContent = 'Passe de Batalha já está ativo!';
+            message.style.position = 'absolute';
+            message.style.top = '50%';
+            message.style.left = '50%';
+            message.style.transform = 'translate(-50%, -50%)';
+            message.style.color = '#FF0000';
+            message.style.fontSize = '24px';
+            message.style.textShadow = '2px 2px #000';
+            document.body.appendChild(message);
+            setTimeout(() => message.remove(), 3000);
+        }
+
         document.getElementById('startButton').addEventListener('click', startGame);
 
         function resetGame() {
@@ -684,7 +785,7 @@
             player.y = canvas.height / 2;
             player.dx = 0;
             player.dy = 0;
-            player.lives = 6;
+            player.lives = battlePassActive ? 5 : 6;
             player.shield = false;
             player.shieldTimer = 0;
             enemies = [];
@@ -1188,7 +1289,10 @@
                 let distance = Math.sqrt(dx * dx + dy * dy);
                 if (distance < 5 + player.radius) {
                     if (player.shield) {
-                        player.shield = false;
+                        player.shieldHealth--;
+                        if (player.shieldHealth <= 0) {
+                            player.shield = false;
+                        }
                     } else {
                         playerTakeDamage();
                     }
@@ -1201,7 +1305,7 @@
                 let dy = player.y - powerUp.y;
                 let distance = Math.sqrt(dx * dx + dy * dy);
                 if (distance < player.radius + powerUp.radius) {
-                    player.lives = Math.min(player.lives + 1, 6);
+                    player.lives = Math.min(player.lives + 1, battlePassActive ? 5 : 3);
                     updateLives();
                     powerUps.splice(index, 1);
                 }
@@ -1553,7 +1657,7 @@
 
             player.x = canvas.width / 2;
             player.y = canvas.height / 2;
-            player.lives = 6; // Reset lives to full
+            player.lives = battlePassActive ? 5 : 3;
             player.shield = true;
             player.shieldTimer = Date.now();
             
@@ -1578,6 +1682,7 @@
             }
         });
 
+        let codeInput = '';
         document.addEventListener('keydown', (e) => {
             if (e.code === 'Space' && gameState === 'playing') {
                 shoot();
@@ -1599,6 +1704,15 @@
             }
             if (e.code === 'KeyR' && gameState === 'playing') {
                 activateSlowBulletsPower();
+            }
+
+            codeInput += e.key;
+            if (codeInput.length > 8) {
+                codeInput = codeInput.slice(-8);
+            }
+            if (codeInput === '66778899') {
+                activateBattlePass(codeInput);
+                codeInput = '';
             }
         });
 
@@ -1661,7 +1775,7 @@
             let BB = ((B.toString(16).length==1)?"0"+B.toString(16):B.toString(16));
             return "#"+RR+GG+BB;
         }
-        
+
         let slowBulletsPowerActive = false;
         let slowBulletsPowerTimer = 0;
 
