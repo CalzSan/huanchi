@@ -292,16 +292,54 @@
         #updateNotes {
             display: none;
             position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0,0,0,0.8);
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 80%;
+            max-width: 600px;
+            background: rgba(0,0,33,0.9);
             color: #0F0;
             text-align: center;
-            padding: 20px;
+            padding: 30px;
             box-sizing: border-box;
             z-index: 1001;
+            border: 3px solid #0F0;
+            border-radius: 15px;
+            box-shadow: 0 0 20px #0F0;
+        }
+        #updateNotes h2 {
+            font-size: 36px;
+            margin-bottom: 20px;
+            text-shadow: 0 0 10px #0F0;
+        }
+        #updateNotes h3 {
+            font-size: 28px;
+            margin-bottom: 15px;
+            color: #0FF;
+        }
+        #updateNotes ul {
+            list-style-type: none;
+            padding: 0;
+            margin-bottom: 20px;
+        }
+        #updateNotes li {
+            font-size: 20px;
+            margin-bottom: 10px;
+            text-shadow: 0 0 5px #0F0;
+        }
+        #closeUpdateNotes {
+            padding: 15px 30px;
+            background-color: #0F0;
+            color: #000033;
+            border: none;
+            border-radius: 25px;
+            font-size: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        #closeUpdateNotes:hover {
+            background-color: #00FF00;
+            box-shadow: 0 0 15px #0F0;
         }
     </style>
 </head>
@@ -316,12 +354,15 @@
     <div id="updateNotes">
         <h2>NOTAS DA ATUALIZAÇÃO</h2>
         <h3>NOVO PASSE DE BATALHA</h3>
-        <ul style="list-style-type: none; padding: 0;">
+        <ul>
             <li>2 vidas extras (total de 5 vidas)</li>
             <li>+15 power-ups de cada tipo</li>
             <li>15 usos do poder de Intangibilidade</li>
+            <li>Chance de ganhar poder Intangível a cada 5 ondas</li>
         </ul>
-        <button id="closeUpdateNotes" style="padding: 10px 20px; background-color: #0F0; color: #000; border: none; cursor: pointer; margin-top: 20px;">Continuar</button>
+        <p>Preço: R$ 5,90</p>
+        <p>Para adquirir, contate: 11953513188</p>
+        <button id="closeUpdateNotes">Continuar</button>
     </div>
     <div id="lobby">
         <h1>HUANCHI</h1>
@@ -352,9 +393,10 @@
                 <li>5 vidas</li>
                 <li>+15 power-ups de cada tipo</li>
                 <li>15 usos do poder de Intangibilidade</li>
+                <li>Chance de ganhar poder Intangível a cada 5 ondas</li>
             </ul>
             <p>Para adquirir, contate: 11953513188</p>
-            <p>Preço: R$ 2,50</p>
+            <p>Preço: R$ 5,90</p>
         </div>
     </div>
     <canvas id="gameCanvas"></canvas>
@@ -745,7 +787,7 @@
 
         function showBattlePassActivatedMessage() {
             const message = document.createElement('div');
-            message.textContent = 'Passe de Batalha Ativado!';
+            message.textContent = 'Passe de Batalha Ativado! Valor: R$ 5,90';
             message.style.position = 'absolute';
             message.style.top = '50%';
             message.style.left = '50%';
@@ -1092,7 +1134,7 @@
                 if (distance < ENEMY_FLEE_DISTANCE) {
                     enemy.x -= (dx / distance) * enemy.speed;
                     enemy.y -= (dy / distance) * enemy.speed;
-                } else if (distance < ENEMY_SHOOT_DISTANCE || (enemy.color === 'white' && distance < ENEMY_SHOOT_DISTANCE * 1.5)) {
+                } else if (distance < ENEMY_SHOOT_DISTANCE) {
                     if (Date.now() - enemy.lastShot > enemy.shotInterval) {
                         enemyShoot(enemy);
                         enemy.lastShot = Date.now();
@@ -1349,17 +1391,12 @@
             if (waveNumber % 5 === 0) {
                 spawnBoss();
                 spawnPowerUp();
-                slowBulletsPowerUps++; 
-                updateSlowBulletsIndicator();
+                distributeRandomPowerUp();
                 saveProgress(); 
                 document.getElementById('bossHealthBar').style.display = 'block';
             } else {
                 document.getElementById('bossHealthBar').style.display = 'none';
                 spawnWave();
-            }
-            if (waveNumber % 3 === 0) {
-                specialShotsRemaining++;
-                updateSpecialShots();
             }
 
             if (waveNumber % 10 === 0) {
@@ -1370,27 +1407,56 @@
             }
         }
 
-        function showUpgradeMessage(upgradeType) {
-            const upgradeMessages = {
-                fireRate: 'Taxa de tiro aumentada!',
-                bulletSpeed: 'Velocidade do tiro aumentada!',
-                shipSpeed: 'Velocidade da nave aumentada!',
-                specialShotPower: 'Poder do tiro especial aumentado!'
+        function distributeRandomPowerUp() {
+            const powerUps = ['specialShot', 'guidedMissile', 'slowBullets'];
+            if (battlePassActive) {
+                powerUps.push('intangible');
+            }
+            const randomPowerUp = powerUps[Math.floor(Math.random() * powerUps.length)];
+            
+            switch(randomPowerUp) {
+                case 'specialShot':
+                    specialShotsRemaining++;
+                    updateSpecialShots();
+                    break;
+                case 'guidedMissile':
+                    guidedMissileUses++;
+                    updateGuidedMissileUses();
+                    break;
+                case 'slowBullets':
+                    slowBulletsPowerUps++;
+                    updateSlowBulletsIndicator();
+                    break;
+                case 'intangible':
+                    intangiblePowerUses++;
+                    updateIntangiblePowerUses();
+                    break;
+            }
+            
+            showPowerUpMessage(randomPowerUp);
+        }
+
+        function showPowerUpMessage(powerUp) {
+            const messages = {
+                'specialShot': 'Tiro Especial +1',
+                'guidedMissile': 'Míssil Teleguiado +1',
+                'slowBullets': 'Tiros Lentos +1',
+                'intangible': 'Intangível +1'
             };
 
-            const upgradeMessage = document.createElement('div');
-            upgradeMessage.textContent = upgradeMessages[upgradeType];
-            upgradeMessage.style.position = 'absolute';
-            upgradeMessage.style.top = '50%';
-            upgradeMessage.style.left = '50%';
-            upgradeMessage.style.transform = 'translate(-50%, -50%)';
-            upgradeMessage.style.color = '#0F0';
-            upgradeMessage.style.fontSize = '24px';
-            upgradeMessage.style.textShadow = '2px 2px #00F';
-            document.body.appendChild(upgradeMessage);
+            const message = document.createElement('div');
+            message.textContent = messages[powerUp];
+            message.style.position = 'absolute';
+            message.style.top = '50%';
+            message.style.left = '50%';
+            message.style.transform = 'translate(-50%, -50%)';
+            message.style.color = '#0F0';
+            message.style.fontSize = '24px';
+            message.style.textShadow = '2px 2px #00F';
+            document.body.appendChild(message);
 
             setTimeout(() => {
-                upgradeMessage.remove();
+                message.remove();
             }, 3000);
         }
 
