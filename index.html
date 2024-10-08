@@ -318,8 +318,7 @@
         <h3>NOVO PASSE DE BATALHA</h3>
         <ul style="list-style-type: none; padding: 0;">
             <li>2 vidas extras (total de 5 vidas)</li>
-            <li>+50 power-ups de cada tipo</li>
-            <li>Escudo especial que aguenta 15 hits</li>
+            <li>+15 power-ups de cada tipo</li>
         </ul>
         <button id="closeUpdateNotes" style="padding: 10px 20px; background-color: #0F0; color: #000; border: none; cursor: pointer; margin-top: 20px;">Continuar</button>
     </div>
@@ -349,8 +348,7 @@
             <p>Benefícios:</p>
             <ul>
                 <li>5 vidas</li>
-                <li>+50 power-ups de cada tipo</li>
-                <li>Escudo que aguenta 15 hits</li>
+                <li>+15 power-ups de cada tipo</li>
             </ul>
             <p>Para adquirir, contate: 11953513188</p>
             <p>Preço: R$ 2,50</p>
@@ -452,7 +450,7 @@
         }
 
         function createMeteorFragments(x, y, radius) {
-            const fragmentCount = Math.floor(Math.random() * 5) + 5; // 5 to 10 fragments
+            const fragmentCount = Math.floor(Math.random() * 5) + 5; 
             for (let i = 0; i < fragmentCount; i++) {
                 const fragment = {
                     x: x,
@@ -462,7 +460,7 @@
                     dy: (Math.random() - 0.5) * 4,
                     rotation: Math.random() * Math.PI * 2,
                     rotationSpeed: (Math.random() - 0.5) * 0.2,
-                    lifetime: 60 // frames
+                    lifetime: 60 
                 };
                 meteors.push(fragment);
             }
@@ -474,7 +472,7 @@
                 ctx.translate(meteor.x, meteor.y);
                 ctx.rotate(meteor.rotation);
                 
-                if (meteor.lifetime) { // This is a fragment
+                if (meteor.lifetime) { 
                     ctx.beginPath();
                     ctx.moveTo(-meteor.radius, 0);
                     ctx.lineTo(0, -meteor.radius);
@@ -565,8 +563,6 @@
             dx: 0,
             dy: 0,
             lives: 6,
-            shield: false,
-            shieldHealth: 0
         };
 
         function updateLives() {
@@ -582,20 +578,6 @@
             if (player.lives <= 0) {
                 playerExplode();
                 gameOver();
-            }
-        }
-
-        function drawShield() {
-            if (player.shield) {
-                ctx.beginPath();
-                ctx.arc(player.x, player.y, player.radius + 10, 0, Math.PI * 2);
-                ctx.strokeStyle = `rgba(0, 255, 255, ${player.shieldHealth / 15})`;
-                ctx.lineWidth = 3;
-                ctx.stroke();
-                
-                ctx.fillStyle = '#0FF';
-                ctx.font = '12px RetroFont';
-                ctx.fillText(`Shield: ${player.shieldHealth}`, player.x - 20, player.y + player.radius + 20);
             }
         }
 
@@ -734,11 +716,9 @@
             if (code === '66778899' && !battlePassActive) {
                 battlePassActive = true;
                 player.lives = 5;  
-                slowBulletsPowerUps += 50;
-                guidedMissileUses += 50;
-                specialShotsRemaining += 50;
-                player.shield = true;
-                player.shieldHealth = 15; 
+                slowBulletsPowerUps += 15;
+                guidedMissileUses += 15;
+                specialShotsRemaining += 15;
                 updateLives();
                 updateSpecialShots();
                 updateGuidedMissileUses();
@@ -785,8 +765,6 @@
             player.dx = 0;
             player.dy = 0;
             player.lives = battlePassActive ? 5 : 6;
-            player.shield = false;
-            player.shieldHealth = 0;
             enemies = [];
             bullets = [];
             enemyBullets = [];
@@ -970,8 +948,6 @@
             ctx.fill();
 
             ctx.restore();
-
-            drawShield();
         }
 
         function drawEnemies() {
@@ -1177,10 +1153,6 @@
         }
 
         function checkCollisions() {
-            if (player.shield && Date.now() - player.shieldTimer > 3000) {
-                player.shield = false;
-            }
-
             enemies.forEach((enemy, enemyIndex) => {
                 let dx = player.x - enemy.x;
                 let dy = player.y - enemy.y;
@@ -1271,15 +1243,6 @@
                         }
                     }
                 });
-
-                enemyBullets.forEach((bullet, bulletIndex) => {
-                    dx = bullet.x - meteor.x;
-                    dy = bullet.y - meteor.y;
-                    distance = Math.sqrt(dx * dx + dy * dy);
-                    if (distance < 5 + meteor.radius) {
-                        enemyBullets.splice(bulletIndex, 1);
-                    }
-                });
             });
 
             enemyBullets.forEach((bullet, bulletIndex) => {
@@ -1287,14 +1250,7 @@
                 let dy = bullet.y - player.y;
                 let distance = Math.sqrt(dx * dx + dy * dy);
                 if (distance < 5 + player.radius) {
-                    if (player.shield) {
-                        player.shieldHealth--;
-                        if (player.shieldHealth <= 0) {
-                            player.shield = false;
-                        }
-                    } else {
-                        playerTakeDamage();
-                    }
+                    playerTakeDamage();
                     enemyBullets.splice(bulletIndex, 1);
                 }
             });
@@ -1567,13 +1523,6 @@
             ctx.strokeStyle = '#ffffff';
             ctx.lineWidth = 2;
             ctx.stroke();
-            if (boss.shieldActive) {
-                ctx.beginPath();
-                ctx.arc(0, 0, boss.radius + 20, 0, Math.PI * 2);
-                ctx.strokeStyle = 'rgba(0, 255, 255, 0.5)';
-                ctx.lineWidth = 5;
-                ctx.stroke();
-            }
             const healthBarWidth = 200;
             const healthBarHeight = 20;
             const healthPercentage = boss.health / 350;
@@ -1657,8 +1606,6 @@
             player.x = canvas.width / 2;
             player.y = canvas.height / 2;
             player.lives = battlePassActive ? 5 : 3;
-            player.shield = true;
-            player.shieldHealth = 15; 
             
             enemies = [];
             bullets = [];
