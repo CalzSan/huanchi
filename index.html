@@ -359,6 +359,8 @@
             <li>+15 power-ups de cada tipo</li>
             <li>15 usos do poder de Intangibilidade</li>
             <li>Chance de ganhar poder Intangível a cada 5 ondas</li>
+            <li>Multiplicador de pontuação x2</li>
+            <li>Chance de ganhar 2 power-ups a cada 5 ondas</li>
         </ul>
         <p>Preço: R$ 5,90</p>
         <p>Para adquirir, contate: 11953513188</p>
@@ -394,6 +396,8 @@
                 <li>+15 power-ups de cada tipo</li>
                 <li>15 usos do poder de Intangibilidade</li>
                 <li>Chance de ganhar poder Intangível a cada 5 ondas</li>
+                <li>Multiplicador de pontuação x2</li>
+                <li>Chance de ganhar 2 power-ups a cada 5 ondas</li>
             </ul>
             <p>Para adquirir, contate: 11953513188</p>
             <p>Preço: R$ 5,90</p>
@@ -423,6 +427,8 @@
         let intangiblePowerActive = false;
         let intangiblePowerTimer = 0;
         let intangiblePowerUses = 0;
+        let scoreMultiplier = 1;
+        let battlePassLuck = false;
         const WHITE_ENEMY_BULLET_MAX_DISTANCE = 300;
         const canvas = document.getElementById('gameCanvas');
         const ctx = canvas.getContext('2d');
@@ -774,6 +780,8 @@
                 guidedMissileUses += 15;
                 specialShotsRemaining += 15;
                 intangiblePowerUses = 15; 
+                scoreMultiplier = 2; // Add score multiplier
+                battlePassLuck = true; // Enable battle pass luck
                 updateLives();
                 updateSpecialShots();
                 updateGuidedMissileUses();
@@ -815,6 +823,47 @@
 
         function updateIntangiblePowerUses() {
             intangiblePowerElement.textContent = `Intangível (Tecla U): ${intangiblePowerUses}`;
+        }
+
+        function updateScore() {
+            scoreElement.textContent = `Pontuação: ${score * scoreMultiplier}`;
+        }
+
+        function distributeRandomPowerUp() {
+            const powerUps = ['specialShot', 'guidedMissile', 'slowBullets'];
+            if (battlePassActive) {
+                powerUps.push('intangible');
+            }
+            
+            let numberOfPowerUps = 1;
+            if (battlePassLuck && Math.random() < 0.5) { // 50% chance for battle pass holders
+                numberOfPowerUps = 2;
+            }
+            
+            for (let i = 0; i < numberOfPowerUps; i++) {
+                const randomPowerUp = powerUps[Math.floor(Math.random() * powerUps.length)];
+                
+                switch(randomPowerUp) {
+                    case 'specialShot':
+                        specialShotsRemaining++;
+                        updateSpecialShots();
+                        break;
+                    case 'guidedMissile':
+                        guidedMissileUses++;
+                        updateGuidedMissileUses();
+                        break;
+                    case 'slowBullets':
+                        slowBulletsPowerUps++;
+                        updateSlowBulletsIndicator();
+                        break;
+                    case 'intangible':
+                        intangiblePowerUses++;
+                        updateIntangiblePowerUses();
+                        break;
+                }
+                
+                showPowerUpMessage(randomPowerUp);
+            }
         }
 
         document.getElementById('startButton').addEventListener('click', startGame);
@@ -1334,10 +1383,6 @@
             });
         }
 
-        function updateScore() {
-            scoreElement.textContent = `Pontuação: ${score}`;
-        }
-
         function updateKillCount() {
             killCountElement.textContent = `Abates: ${killCount}`;
         }
@@ -1405,35 +1450,6 @@
                 applyUpgrades();
                 showUpgradeMessage(upgradeType);
             }
-        }
-
-        function distributeRandomPowerUp() {
-            const powerUps = ['specialShot', 'guidedMissile', 'slowBullets'];
-            if (battlePassActive) {
-                powerUps.push('intangible');
-            }
-            const randomPowerUp = powerUps[Math.floor(Math.random() * powerUps.length)];
-            
-            switch(randomPowerUp) {
-                case 'specialShot':
-                    specialShotsRemaining++;
-                    updateSpecialShots();
-                    break;
-                case 'guidedMissile':
-                    guidedMissileUses++;
-                    updateGuidedMissileUses();
-                    break;
-                case 'slowBullets':
-                    slowBulletsPowerUps++;
-                    updateSlowBulletsIndicator();
-                    break;
-                case 'intangible':
-                    intangiblePowerUses++;
-                    updateIntangiblePowerUses();
-                    break;
-            }
-            
-            showPowerUpMessage(randomPowerUp);
         }
 
         function showPowerUpMessage(powerUp) {
