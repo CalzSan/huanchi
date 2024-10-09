@@ -5,7 +5,7 @@
     <title>HUANCHI - Um Jogo Retro por CALZSAN</title>
     <style>
         @font-face {
-          font-family: 'RetroFont';
+            font-family: 'RetroFont';
             src: url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
         }
         body, html {
@@ -185,7 +185,7 @@
             right: 10px;
             font-size: 18px;
             color: #0F0;
-            text-shadow: 1px 1px #00F;
+            text-shadow: 1px 1px #0F;
         }
         #lives {
             position: absolute;
@@ -312,6 +312,12 @@
             margin-bottom: 20px;
             text-shadow: 0 0 10px #0F0;
         }
+        #updateNotes h3:first-of-type {
+            font-size: 32px;
+            color: #FF00FF;
+            text-shadow: 0 0 10px #FF00FF;
+            margin-bottom: 20px;
+        }
         #updateNotes h3 {
             font-size: 28px;
             margin-bottom: 15px;
@@ -353,9 +359,8 @@
     </div>
     <div id="updateNotes">
         <h2>NOTAS DA ATUALIZAÇÃO</h2>
-        <h3>NOVO PASSE DE BATALHA  
-                 TEMPORADA 1</h3>
-                <h3>NEBULOSA<h3>
+        <h3>TEMPORADA 1 - NEBULOSA</h3>
+        <h3>NOVO PASSE DE BATALHA</h3>
         <ul>
             <li>2 vidas extras (total de 5 vidas)</li>
             <li>+15 power-ups de cada tipo</li>
@@ -1185,14 +1190,15 @@
                 if (distance < ENEMY_FLEE_DISTANCE) {
                     enemy.x -= (dx / distance) * enemy.speed;
                     enemy.y -= (dy / distance) * enemy.speed;
-                } else if (distance < ENEMY_SHOOT_DISTANCE) {
-                    if (Date.now() - enemy.lastShot > enemy.shotInterval) {
-                        enemyShoot(enemy);
-                        enemy.lastShot = Date.now();
-                    }
                 } else {
                     enemy.x += (dx / distance) * enemy.speed * 0.5;
                     enemy.y += (dy / distance) * enemy.speed * 0.5;
+                    if (distance < ENEMY_SHOOT_DISTANCE) {
+                        if (Date.now() - enemy.lastShot > enemy.shotInterval) {
+                            enemyShoot(enemy);
+                            enemy.lastShot = Date.now();
+                        }
+                    }
                 }
                 enemy.x = Math.max(enemy.radius, Math.min(canvas.width - enemy.radius, enemy.x));
                 enemy.y = Math.max(enemy.radius, Math.min(canvas.height - enemy.radius, enemy.y));
@@ -1209,22 +1215,20 @@
             });
 
             let slowFactor = slowBulletsPowerActive ? 0.5 : 1;
-            enemyBullets.forEach((bullet, index) => {
+            enemyBullets.forEach((bullet, bulletIndex) => {
                 bullet.x += bullet.dx * slowFactor;
                 bullet.y += bullet.dy * slowFactor;
-                
                 if (bullet.maxDistance) {
                     let dx = bullet.x - bullet.initialX;
                     let dy = bullet.y - bullet.initialY;
                     let distanceTraveled = Math.sqrt(dx * dx + dy * dy);
                     if (distanceTraveled > bullet.maxDistance) {
-                        enemyBullets.splice(index, 1);
+                        enemyBullets.splice(bulletIndex, 1);
                         return;
                     }
                 }
-                
                 if (bullet.x < 0 || bullet.x > canvas.width || bullet.y < 0 || bullet.y > canvas.height) {
-                    enemyBullets.splice(index, 1);
+                    enemyBullets.splice(bulletIndex, 1);
                 }
             });
 
@@ -1279,7 +1283,7 @@
                         gameOver();
                         return;
                     }
-    
+
                     bullets.forEach((bullet, bulletIndex) => {
                         dx = bullet.x - enemy.x;
                         dy = bullet.y - enemy.y;
@@ -1312,7 +1316,7 @@
                         }
                     });
                 });
-    
+
                 guidedMissiles.forEach((missile, missileIndex) => {
                     enemies.forEach((enemy, enemyIndex) => {
                         if (enemy.color !== 'cyan') {
@@ -1333,7 +1337,7 @@
                         }
                     });
                 });
-    
+
                 meteors.forEach((meteor, meteorIndex) => {
                     let dx = player.x - meteor.x;
                     let dy = player.y - meteor.y;
@@ -1345,7 +1349,7 @@
                         playerExplode();
                         gameOver();
                     }
-    
+
                     bullets.forEach((bullet, bulletIndex) => {
                         dx = bullet.x - meteor.x;
                         dy = bullet.y - meteor.y;
@@ -1361,7 +1365,7 @@
                         }
                     });
                 });
-    
+
                 enemyBullets.forEach((bullet, bulletIndex) => {
                     let dx = bullet.x - player.x;
                     let dy = bullet.y - player.y;
