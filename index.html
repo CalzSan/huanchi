@@ -219,6 +219,8 @@
             text-align: center;
             font-family: 'RetroFont', Arial, sans-serif;
             z-index: 1000;
+            max-height: 80vh;
+            overflow-y: auto;
         }
         #pauseMenu h2 {
             font-size: 36px;
@@ -242,6 +244,28 @@
             padding: 10px 20px;
             font-size: 18px;
             cursor: pointer;
+        }
+        #shopItems {
+            margin-top: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .shopItem {
+            margin: 10px 0;
+            padding: 10px;
+            background-color: #000066;
+            border: 2px solid #00ffff;
+            color: #00ffff;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .shopItem:hover {
+            background-color: #000099;
+        }
+        .shopItem:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
         }
         @keyframes explode {
             0% { transform: scale(0); opacity: 1; }
@@ -395,19 +419,13 @@
             <li>Pressione U para ativar intangibilidade (apenas com Passe de Batalha)</li>
         </ul>
         <button id="resumeButton">Continuar</button>
-        <div id="battlePassInfo">
-            <h3>Passe de Batalha</h3>
-            <p>Benefícios:</p>
-            <ul>
-                <li>5 vidas</li>
-                <li>+15 power-ups de cada tipo</li>
-                <li>15 usos do poder de Intangibilidade</li>
-                <li>Chance de ganhar poder Intangível a cada 5 ondas</li>
-                <li>Multiplicador de pontuação x2</li>
-                <li>Chance de ganhar 2 power-ups a cada 5 ondas</li>
-            </ul>
-            <p>Para adquirir, contate: 11953513188</p>
-            <p>Preço: R$ 7,90</p>
+        <div id="shopItems">
+            <h3>Loja</h3>
+            <button class="shopItem" onclick="purchaseItem('specialShot')">Comprar Tiro Especial (4000 pontos)</button>
+            <button class="shopItem" onclick="purchaseItem('guidedMissile')">Comprar Míssil Teleguiado (7000 pontos)</button>
+            <button class="shopItem" onclick="purchaseItem('slowBullets')">Comprar Tiros Lentos (10000 pontos)</button>
+            <button class="shopItem" onclick="purchaseItem('life')">Comprar Vida Extra (17000 pontos)</button>
+            <button class="shopItem" onclick="purchaseItem('intangible')">Comprar Intangível (13000 pontos)</button>
         </div>
     </div>
     <canvas id="gameCanvas"></canvas>
@@ -835,6 +853,7 @@
         }
 
         function updateScore() {
+            score = Math.floor(score); 
             scoreElement.textContent = `Pontuação: ${score * scoreMultiplier}`;
         }
 
@@ -1731,6 +1750,7 @@
             if (isPaused) {
                 pauseMenu.style.display = 'block';
                 document.body.style.cursor = 'default';
+                updatePauseMenu();
             } else {
                 pauseMenu.style.display = 'none';
                 document.body.style.cursor = 'none';
@@ -1885,5 +1905,64 @@
         let slowBulletsPowerActive = false;
         let slowBulletsPowerTimer = 0;
 
+        function updatePauseMenu() {
+            const scoreDisplay = document.createElement('p');
+            scoreDisplay.textContent = `Pontuação atual: ${score.toLocaleString()}`;
+            pauseMenu.insertBefore(scoreDisplay, pauseMenu.firstChild);
+
+            const shopItems = document.querySelectorAll('.shopItem');
+            shopItems.forEach(item => {
+                const cost = parseInt(item.textContent.match(/\d+/)[0].replace(/\./g, ''));
+                item.disabled = score < cost;
+            });
+        }
+
+        function purchaseItem(itemType) {
+            let cost;
+            switch (itemType) {
+                case 'specialShot':
+                    cost = 4000;
+                    if (score >= cost) {
+                        specialShotsRemaining++;
+                        score -= cost;
+                        updateSpecialShots();
+                    }
+                    break;
+                case 'guidedMissile':
+                    cost = 7000;
+                    if (score >= cost) {
+                        guidedMissileUses++;
+                        score -= cost;
+                        updateGuidedMissileUses();
+                    }
+                    break;
+                case 'slowBullets':
+                    cost = 10000;
+                    if (score >= cost) {
+                        slowBulletsPowerUps++;
+                        score -= cost;
+                        updateSlowBulletsIndicator();
+                    }
+                    break;
+                case 'life':
+                    cost = 17000;
+                    if (score >= cost && player.lives < (battlePassActive ? 5 : 3)) {
+                        player.lives++;
+                        score -= cost;
+                        updateLives();
+                    }
+                    break;
+                case 'intangible':
+                    cost = 13000;
+                    if (score >= cost && battlePassActive) {
+                        intangiblePowerUses++;
+                        score -= cost;
+                        updateIntangiblePowerUses();
+                    }
+                    break;
+            }
+            updateScore();
+            updatePauseMenu();
+        }
     </script>
 </body></html>
