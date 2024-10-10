@@ -1906,7 +1906,13 @@
         let slowBulletsPowerTimer = 0;
 
         function updatePauseMenu() {
+            const existingScoreDisplay = pauseMenu.querySelector('#scoreDisplay');
+            if (existingScoreDisplay) {
+                existingScoreDisplay.remove();
+            }
+
             const scoreDisplay = document.createElement('p');
+            scoreDisplay.id = 'scoreDisplay';
             scoreDisplay.textContent = `Pontuação atual: ${score.toLocaleString()}`;
             pauseMenu.insertBefore(scoreDisplay, pauseMenu.firstChild);
 
