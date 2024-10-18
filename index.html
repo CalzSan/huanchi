@@ -1,4 +1,4 @@
-<html><head><base href="https://tagrunner.com/enhanced-wave-system/">
+<!DOCTYPE html><html><head><base href="https://tagrunner.com/enhanced-wave-system/">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="HUANCHI - Um Jogo Retro por CALZSAN">
@@ -375,60 +375,793 @@
 </head>
 <body>
     <div id="loadingScreen">
-        <h1>HUANCHI</h1>
-        <div id="loadingBar">
-            <div id="loadingProgress"></div>
+    <div class="space-background"></div>
+    <div class="loading-content">
+        <h1 class="game-title">HUANCHI</h1>
+        <div class="loading-bar-container">
+            <div id="loadingBar">
+                <div id="loadingProgress">
+    <style>
+        #loadingProgress {
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(
+                90deg, 
+                #00ffff, 
+                #0000ff, 
+                #00ffff, 
+                #0000ff
+            );
+            background-size: 300% 100%;
+            animation: loading-shine 2s linear infinite, 
+                       loading-progress 5s ease-out,
+                       neon-glow 1.5s ease-in-out infinite alternate;
+            box-shadow: 0 0 25px #00ffff, 0 0 50px #00ffff;
+            border-radius: 15px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        #loadingProgress::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(
+                90deg,
+                transparent,
+                rgba(255, 255, 255, 0.3),
+                transparent
+            );
+            animation: loading-shine 1.5s linear infinite;
+        }
+
+        #loadingProgress::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: repeating-linear-gradient(
+                45deg,
+                rgba(255,255,255,0.1),
+                rgba(255,255,255,0.1) 10px,
+                rgba(255,255,255,0.2) 10px,
+                rgba(255,255,255,0.2) 20px
+            );
+            animation: move-stripes 20s linear infinite;
+        }
+
+        @keyframes loading-shine {
+            0% { background-position: 100% 50%; }
+            100% { background-position: 0 50%; }
+        }
+
+        @keyframes loading-progress {
+            0% { width: 0%; }
+            100% { width: 100%; }
+        }
+
+        @keyframes neon-glow {
+            from {
+                box-shadow: 0 0 25px #00ffff, 0 0 50px #00ffff;
+            }
+            to {
+                box-shadow: 0 0 50px #00ffff, 0 0 75px #00ffff, 0 0 100px #00ffff;
+            }
+        }
+
+        @keyframes move-stripes {
+            0% { background-position: 0 0; }
+            100% { background-position: 50px 50px; }
+        }
+    </style>
+</div>
+            </div>
         </div>
         <div id="gameVersion">v4.7.3</div>
+        <div class="loading-message">Preparando-se para o combate espacial...</div>
     </div>
+    
+    <style>
+        #loadingScreen {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background: radial-gradient(ellipse at bottom, #1B2735 0%, #090A0F 100%);
+            overflow: hidden;
+            position: relative;
+        }
+
+        .space-background {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-image: 
+                radial-gradient(1px 1px at 25px 5px, white, rgba(255,255,255,0)),
+                radial-gradient(1px 1px at 50px 25px, white, rgba(255,255,255,0)),
+                radial-gradient(1px 1px at 125px 20px, white, rgba(255,255,255,0)),
+                radial-gradient(1.5px 1.5px at 50px 75px, white, rgba(255,255,255,0)),
+                radial-gradient(2px 2px at 15px 125px, white, rgba(255,255,255,0)),
+                radial-gradient(2.5px 2.5px at 110px 80px, white, rgba(255,255,255,0));
+            background-repeat: repeat;
+            background-size: 200px 200px;
+            animation: space-animation 60s linear infinite;
+            opacity: 0.5;
+        }
+
+        @keyframes space-animation {
+            from {
+                transform: translateY(0);
+            }
+            to {
+                transform: translateY(-200px);
+            }
+        }
+
+        .loading-content {
+            z-index: 1;
+            text-align: center;
+        }
+
+        .game-title {
+            font-size: 120px;
+            color: #00ffff;
+            text-shadow: 0 0 20px #00ffff, 0 0 40px #00ffff, 0 0 60px #00ffff;
+            letter-spacing: 15px;
+            font-weight: bold;
+            margin-bottom: 40px;
+            animation: neon-flicker 1.5s infinite alternate;
+        }
+
+        @keyframes neon-flicker {
+            0%, 19%, 21%, 23%, 25%, 54%, 56%, 100% {
+                text-shadow: 0 0 20px #00ffff, 0 0 40px #00ffff, 0 0 60px #00ffff;
+            }
+            20%, 24%, 55% {
+                text-shadow: none;
+            }
+        }
+
+        .loading-bar-container {
+            position: relative;
+            width: 400px;
+            height: 30px;
+            background-color: rgba(0, 255, 255, 0.2);
+            border: 3px solid #00ffff;
+            box-shadow: 0 0 20px #00ffff;
+            border-radius: 15px;
+            overflow: hidden;
+            margin: 0 auto;
+        }
+
+        #loadingBar {
+            width: 100%;
+            height: 100%;
+        }
+
+        #loadingProgress {
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(90deg, #00ffff, #0000ff);
+            transition: width 0.5s ease-out;
+            box-shadow: 0 0 25px #00ffff;
+            position: relative;
+            overflow: hidden;
+        }
+
+        #loadingProgress::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+            animation: loading-shine 1.5s infinite;
+        }
+
+        @keyframes loading-shine {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+
+        #gameVersion {
+            margin-top: 20px;
+            font-size: 24px;
+            color: #00ffff;
+            text-shadow: 0 0 10px #00ffff;
+        }
+
+        .loading-message {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 18px;
+            color: #00ffff;
+            text-shadow: 0 0 5px #00ffff;
+            opacity: 0;
+            animation: message-fade 2s infinite;
+        }
+
+        @keyframes message-fade {
+            0%, 100% { opacity: 0; }
+            50% { opacity: 1; }
+        }
+    </style>
+</div>
     <div id="updateNotes">
-        <h2>NOTAS DA ATUALIZAÇÃO</h2>
-        <h3>TEMPORADA 1 - NEBULOSA</h3>
-        <h3>NOVO PASSE DE BATALHA</h3>
-        <ul>
-            <li>2 vidas extras (total de 5 vidas)</li>
-            <li>+15 power-ups de cada tipo</li>
-            <li>15 usos do poder de Intangibilidade</li>
-            <li>Chance de ganhar poder Intangível a cada 5 ondas</li>
-            <li>Multiplicador de pontuação x2</li>
-            <li>Chance de ganhar 2 power-ups a cada 5 ondas</li>
-        </ul>
-        <p>Preço: R$ 7,90</p>
-        <p>Para adquirir, contate: 11953513188</p>
-        <button id="closeUpdateNotes">Continuar</button>
-    </div>
+    <style>
+        #updateNotes {
+            background: linear-gradient(135deg, rgba(0,0,33,0.95), rgba(0,0,66,0.95));
+            color: #00FFFF;
+            text-align: center;
+            padding: 40px;
+            box-sizing: border-box;
+            z-index: 1001;
+            border: 5px solid #00FFFF;
+            border-radius: 25px;
+            box-shadow: 0 0 30px #00FFFF, inset 0 0 20px #00FFFF;
+            font-family: 'RetroFont', Arial, sans-serif;
+            max-width: 800px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+            scrollbar-width: thin;
+            scrollbar-color: #00FFFF rgba(0,0,33,0.5);
+        }
+
+        #updateNotes::-webkit-scrollbar {
+            width: 12px;
+        }
+
+        #updateNotes::-webkit-scrollbar-track {
+            background: rgba(0,0,33,0.5);
+            border-radius: 10px;
+        }
+
+        #updateNotes::-webkit-scrollbar-thumb {
+            background-color: #00FFFF;
+            border-radius: 10px;
+            border: 3px solid rgba(0,0,33,0.5);
+        }
+
+        #updateNotes h2 {
+            font-size: 48px;
+            margin-bottom: 30px;
+            text-shadow: 0 0 15px #00FFFF;
+            letter-spacing: 3px;
+            animation: glow 2s infinite alternate;
+        }
+
+        @keyframes glow {
+            from { text-shadow: 0 0 15px #00FFFF; }
+            to { text-shadow: 0 0 25px #00FFFF, 0 0 35px #0088FF; }
+        }
+
+        #updateNotes h3:first-of-type {
+            font-size: 36px;
+            color: #FF00FF;
+            text-shadow: 0 0 15px #FF00FF;
+            margin-bottom: 30px;
+            letter-spacing: 2px;
+        }
+
+        #updateNotes h3 {
+            font-size: 32px;
+            margin-bottom: 25px;
+            color: #00FF00;
+            text-shadow: 0 0 10px #00FF00;
+        }
+
+        #updateNotes ul {
+            list-style-type: none;
+            padding: 0;
+            margin-bottom: 30px;
+        }
+
+        #updateNotes li {
+            font-size: 24px;
+            margin-bottom: 15px;
+            text-shadow: 0 0 8px #00FFFF;
+            position: relative;
+            padding-left: 30px;
+        }
+
+        #updateNotes li:before {
+            content: '✧';
+            position: absolute;
+            left: 0;
+            color: #FF00FF;
+        }
+
+        #updateNotes p {
+            font-size: 28px;
+            margin-bottom: 20px;
+            color: #FFFF00;
+            text-shadow: 0 0 8px #FFFF00;
+        }
+
+        #closeUpdateNotes {
+            padding: 15px 30px;
+            background: linear-gradient(45deg, #00FF00, #008800);
+            color: #000033;
+            border: none;
+            border-radius: 50px;
+            font-size: 24px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-shadow: 1px 1px #00FF00;
+            box-shadow: 0 0 20px #00FF00;
+            margin-top: 20px;
+        }
+
+        #closeUpdateNotes:hover {
+            transform: scale(1.1);
+            box-shadow: 0 0 30px #00FF00, 0 0 50px #00FF00;
+        }
+    </style>
+
+    <h2>NOTAS DA ATUALIZAÇÃO</h2>
+    <h3>TEMPORADA 1 - NEBULOSA</h3>
+    <h3>NOVO PASSE DE BATALHA</h3>
+    <ul>
+        <li>2 vidas extras (total de 5 vidas)</li>
+        <li>+15 power-ups de cada tipo</li>
+        <li>15 usos do poder de Intangibilidade</li>
+        <li>Chance de ganhar poder Intangível a cada 5 ondas</li>
+        <li>Multiplicador de pontuação x2</li>
+        <li>Chance de ganhar 2 power-ups a cada 5 ondas</li>
+    </ul>
+    <p>Preço: R$ 7,90</p>
+    <p>Para adquirir, contate: 11953513188</p>
+    <button id="closeUpdateNotes">Continuar</button>
+</div>
     <div id="lobby">
-        <h1>HUANCHI</h1>
-        <h2 style="color: #0F0; font-size: 24px; margin-bottom: 20px;">by CALZSAN</h2>
-        <button id="startButton">Iniciar Jogo</button>
-    </div>
+    <style>
+        #lobby {
+            background: radial-gradient(ellipse at center, #1B2735 0%, #090A0F 100%);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            width: 100vw;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .stars {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            background: transparent;
+            box-shadow: 1744px 122px #FFF , 134px 1321px #FFF , 92px 859px #FFF;
+            animation: animStar 50s linear infinite;
+        }
+
+        .stars2 {
+            position: absolute;
+            width: 2px;
+            height: 2px;
+            background: transparent;
+            box-shadow: 1744px 122px #FFF , 134px 1321px #FFF , 92px 859px #FFF;
+            animation: animStar 100s linear infinite;
+        }
+
+        .stars3 {
+            position: absolute;
+            width: 3px;
+            height: 3px;
+            background: transparent;
+            box-shadow: 1744px 122px #FFF , 134px 1321px #FFF , 92px 859px #FFF;
+            animation: animStar 150s linear infinite;
+        }
+
+        @keyframes animStar {
+            from {transform: translateY(0px)}
+            to {transform: translateY(-2000px)}
+        }
+
+        #lobby h1 {
+            font-size: 120px;
+            color: #00FFFF;
+            text-shadow: 0 0 20px #00FFFF, 0 0 30px #00FFFF, 0 0 40px #00FFFF;
+            margin-bottom: 20px;
+            animation: glow 2s ease-in-out infinite alternate;
+        }
+
+        @keyframes glow {
+            from {text-shadow: 0 0 20px #00FFFF, 0 0 30px #00FFFF, 0 0 40px #00FFFF;}
+            to {text-shadow: 0 0 30px #00FFFF, 0 0 40px #00FFFF, 0 0 50px #00FFFF;}
+        }
+
+        #lobby h2 {
+            font-size: 36px;
+            color: #0F0;
+            text-shadow: 0 0 10px #0F0;
+            margin-bottom: 50px;
+        }
+
+        #startButton {
+            font-size: 30px;
+            padding: 20px 40px;
+            background: linear-gradient(45deg, #00FF00, #008800);
+            border: none;
+            border-radius: 50px;
+            color: #000033;
+            text-shadow: 1px 1px #00FF00;
+            box-shadow: 0 0 20px #00FF00, 0 0 40px #00FF00;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        #startButton:before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: rgba(255,255,255,0.1);
+            transform: rotate(45deg);
+            transition: all 0.3s ease;
+        }
+
+        #startButton:hover {
+            transform: scale(1.1);
+            box-shadow: 0 0 30px #00FF00, 0 0 50px #00FF00;
+        }
+
+        #startButton:hover:before {
+            left: -100%;
+            top: -100%;
+        }
+    </style>
+    <div class="stars"></div>
+    <div class="stars2"></div>
+    <div class="stars3"></div>
+    <h1>HUANCHI</h1>
+    <h2>by CALZSAN</h2>
+    <button id="startButton">Iniciar Jogo</button>
+</div>
     <div id="pauseMenu" style="display: none;">
-        <h2>Jogo Pausado</h2>
-        <h3>Regras e Comandos</h3>
-        <ul>
-            <li>Use o mouse para mover a nave</li>
-            <li>Clique para atirar</li>
-            <li>Pressione T para usar o tiro especial</li>
-            <li>Pressione Y para mísseis teleguiados</li>
-            <li>Pressione 1-5 para mudar a dificuldade</li>
-            <li>Evite colisões com inimigos e meteoros</li>
-            <li>Colete corações para ganhar vidas extras</li>
-            <li>Derrote o chefão a cada 5 ondas</li>
-            <li>Sua nave melhora a cada 10 ondas</li>
-            <li>Pressione R para ativar tiros inimigos lentos</li>
-            <li>Pressione U para ativar intangibilidade (apenas com Passe de Batalha)</li>
-        </ul>
-        <button id="resumeButton">Continuar</button>
-        <div id="shopItems">
-            <h3>Loja</h3>
-            <button class="shopItem" onclick="purchaseItem('specialShot')">Comprar Tiro Especial (4000 pontos)</button>
-            <button class="shopItem" onclick="purchaseItem('guidedMissile')">Comprar Míssil Teleguiado (7000 pontos)</button>
-            <button class="shopItem" onclick="purchaseItem('slowBullets')">Comprar Tiros Lentos (10000 pontos)</button>
-            <button class="shopItem" onclick="purchaseItem('life')">Comprar Vida Extra (17000 pontos)</button>
-            <button class="shopItem" onclick="purchaseItem('intangible')">Comprar Intangível (13000 pontos)</button>
-        </div>
+    <style>
+        #pauseMenu {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(0.95);
+            background: linear-gradient(135deg, rgba(0,0,33,0.95), rgba(0,0,66,0.95));
+            color: #00FFFF;
+            padding: 40px;
+            border-radius: 25px;
+            box-shadow: 0 0 50px rgba(0,255,255,0.5), inset 0 0 20px rgba(0,255,255,0.3);
+            font-family: 'RetroFont', Arial, sans-serif;
+            max-width: 80%;
+            width: 600px;
+            max-height: 80vh;
+            overflow-y: auto;
+            text-align: center;
+            z-index: 1000;
+            animation: glowPulse 3s infinite alternate;
+            transition: all 0.3s ease-in-out;
+        }
+
+        #pauseMenu:hover {
+            transform: translate(-50%, -50%) scale(1);
+        }
+
+        @keyframes glowPulse {
+            0% { box-shadow: 0 0 50px rgba(0,255,255,0.5), inset 0 0 20px rgba(0,255,255,0.3); }
+            100% { box-shadow: 0 0 70px rgba(0,255,255,0.7), inset 0 0 30px rgba(0,255,255,0.5); }
+        }
+
+        #pauseMenu h2 {
+            font-size: 48px;
+            margin-bottom: 30px;
+            text-shadow: 0 0 15px #00FFFF, 0 0 25px #00FFFF;
+            letter-spacing: 3px;
+            animation: textGlow 2s infinite alternate;
+        }
+
+        @keyframes textGlow {
+            from { text-shadow: 0 0 15px #00FFFF, 0 0 25px #00FFFF; }
+            to { text-shadow: 0 0 25px #00FFFF, 0 0 40px #00FFFF, 0 0 50px #00FFFF; }
+        }
+
+        #pauseMenu h3 {
+            font-size: 32px;
+            margin-bottom: 20px;
+            color: #FF00FF;
+            text-shadow: 0 0 10px #FF00FF;
+        }
+
+        #pauseMenu ul {
+            text-align: left;
+            margin-bottom: 30px;
+            padding-left: 20px;
+        }
+
+        #pauseMenu li {
+            margin-bottom: 15px;
+            font-size: 18px;
+            list-style-type: none;
+            position: relative;
+            padding-left: 25px;
+            transition: all 0.3s ease;
+        }
+
+        #pauseMenu li:before {
+            content: '➤';
+            position: absolute;
+            left: 0;
+            color: #00FF00;
+            animation: arrowPulse 1.5s infinite alternate;
+        }
+
+        @keyframes arrowPulse {
+            from { transform: translateX(0); }
+            to { transform: translateX(5px); }
+        }
+
+        #pauseMenu li:hover {
+            transform: translateX(10px);
+            color: #FFFF00;
+        }
+
+        #resumeButton {
+            background: linear-gradient(45deg, #00FF00, #008800);
+            color: #000033;
+            border: none;
+            padding: 15px 30px;
+            font-size: 24px;
+            cursor: pointer;
+            border-radius: 50px;
+            transition: all 0.3s ease;
+            margin-top: 20px;
+            text-shadow: 1px 1px #00FF00;
+            box-shadow: 0 0 20px #00FF00;
+        }
+
+        #resumeButton:hover {
+            transform: scale(1.1);
+            box-shadow: 0 0 30px #00FF00, 0 0 50px #00FF00;
+        }
+
+        #shopItems {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-top: 30px;
+        }
+
+        .shopItem {
+            background: linear-gradient(45deg, #000066, #000099);
+            border: 2px solid #00FFFF;
+            border-radius: 15px;
+            padding: 15px;
+            color: #FFFFFF;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .shopItem:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0,255,255,0.3);
+        }
+
+        .shopItem:before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.3) 0%, rgba(255,255,255,0) 80%);
+            transform: rotate(45deg);
+            transition: all 0.3s ease;
+            opacity: 0;
+        }
+
+        .shopItem:hover:before {
+            opacity: 1;
+            transform: rotate(45deg) translate(10%, 10%);
+        }
+
+        .shopItem:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        #scoreDisplay {
+            font-size: 36px;
+            color: #FFFF00;
+            text-shadow: 0 0 10px #FFFF00;
+            margin-bottom: 20px;
+            animation: scorePulse 2s infinite alternate;
+        }
+
+        @keyframes scorePulse {
+            from { transform: scale(1); }
+            to { transform: scale(1.05); }
+        }
+
+        /* Custom scrollbar */
+        #pauseMenu::-webkit-scrollbar {
+            width: 10px;
+        }
+
+        #pauseMenu::-webkit-scrollbar-track {
+            background: rgba(0,0,33,0.5);
+            border-radius: 10px;
+        }
+
+        #pauseMenu::-webkit-scrollbar-thumb {
+            background: linear-gradient(45deg, #00FFFF, #0088FF);
+            border-radius: 10px;
+        }
+
+        #pauseMenu::-webkit-scrollbar-thumb:hover {
+            background: linear-gradient(45deg, #00FFFF, #00AAFF);
+        }
+    </style>
+
+    <h2>Jogo Pausado</h2>
+    <div id="scoreDisplay"></div>
+    <h3>Regras e Comandos</h3>
+    <ul>
+        <li>Use o mouse para mover a nave</li>
+        <li>Clique para atirar</li>
+        <li>Pressione T para usar o tiro especial</li>
+        <li>Pressione Y para mísseis teleguiados</li>
+        <li>Pressione 1-5 para mudar a dificuldade</li>
+        <li>Evite colisões com inimigos e meteoros</li>
+        <li>Colete corações para ganhar vidas extras</li>
+        <li>Derrote o chefão a cada 5 ondas</li>
+        <li>Sua nave melhora a cada 10 ondas</li>
+        <li>Pressione R para ativar tiros inimigos lentos</li>
+        <li>Pressione U para ativar intangibilidade (apenas com Passe de Batalha)</li>
+    </ul>
+    <div id="shopItems">
+        <button class="shopItem" onclick="purchaseItem('specialShot')">
+            <span class="itemIcon">🎯</span>
+            <span class="itemName">Tiro Especial</span>
+            <span class="itemCost">4.000 pts</span>
+        </button>
+        <button class="shopItem" onclick="purchaseItem('guidedMissile')">
+            <span class="itemIcon">🚀</span>
+            <span class="itemName">Míssil Teleguiado</span>
+            <span class="itemCost">7.000 pts</span>
+        </button>
+        <button class="shopItem" onclick="purchaseItem('slowBullets')">
+            <span class="itemIcon">🐌</span>
+            <span class="itemName">Tiros Lentos</span>
+            <span class="itemCost">10.000 pts</span>
+        </button>
+        <button class="shopItem" onclick="purchaseItem('life')">
+            <span class="itemIcon">❤️</span>
+            <span class="itemName">Vida Extra</span>
+            <span class="itemCost">17.000 pts</span>
+        </button>
+        <button class="shopItem" onclick="purchaseItem('intangible')">
+            <span class="itemIcon">👻</span>
+            <span class="itemName">Intangível</span>
+            <span class="itemCost">13.000 pts</span>
+        </button>
     </div>
-    <canvas id="gameCanvas"></canvas>
+    <button id="resumeButton">Continuar</button>
+</div>
+    <canvas id="gameCanvas">
+    <style>
+        #gameCanvas {
+            background: linear-gradient(to bottom, #000033, #000066);
+            border: 4px solid #00FFFF;
+            box-shadow: 0 0 20px #00FFFF, inset 0 0 10px #00FFFF;
+            cursor: none;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            max-width: 100%;
+            max-height: 100%;
+        }
+
+        @keyframes starTwinkle {
+            0% { opacity: 0.2; }
+            50% { opacity: 1; }
+            100% { opacity: 0.2; }
+        }
+
+        .star {
+            position: absolute;
+            background-color: #FFFFFF;
+            border-radius: 50%;
+            animation: starTwinkle 3s infinite;
+        }
+
+        @keyframes nebulaPulse {
+            0% { opacity: 0.3; }
+            50% { opacity: 0.5; }
+            100% { opacity: 0.3; }
+        }
+
+        .nebula {
+            position: absolute;
+            background: radial-gradient(ellipse at center, rgba(255,0,255,0.2) 0%, rgba(255,0,255,0) 70%);
+            border-radius: 50%;
+            animation: nebulaPulse 10s infinite;
+        }
+
+        @keyframes meteorShower {
+            0% { transform: translateY(-100%) translateX(-100%) rotate(45deg); }
+            100% { transform: translateY(100%) translateX(100%) rotate(45deg); }
+        }
+
+        .meteor {
+            position: absolute;
+            width: 2px;
+            height: 2px;
+            background-color: #FFFFFF;
+            box-shadow: 0 0 10px #FFFFFF;
+            opacity: 0.7;
+            animation: meteorShower 2s linear infinite;
+        }
+    </style>
+    <script>
+        function createStarryBackground() {
+            const gameCanvas = document.getElementById('gameCanvas');
+            const starCount = 100;
+            const nebulaCount = 3;
+            const meteorCount = 5;
+
+            for (let i = 0; i < starCount; i++) {
+                const star = document.createElement('div');
+                star.classList.add('star');
+                star.style.width = `${Math.random() * 2 + 1}px`;
+                star.style.height = star.style.width;
+                star.style.left = `${Math.random() * 100}%`;
+                star.style.top = `${Math.random() * 100}%`;
+                star.style.animationDelay = `${Math.random() * 3}s`;
+                gameCanvas.appendChild(star);
+            }
+
+            for (let i = 0; i < nebulaCount; i++) {
+                const nebula = document.createElement('div');
+                nebula.classList.add('nebula');
+                nebula.style.width = `${Math.random() * 200 + 100}px`;
+                nebula.style.height = nebula.style.width;
+                nebula.style.left = `${Math.random() * 100}%`;
+                nebula.style.top = `${Math.random() * 100}%`;
+                nebula.style.animationDelay = `${Math.random() * 10}s`;
+                gameCanvas.appendChild(nebula);
+            }
+
+            for (let i = 0; i < meteorCount; i++) {
+                const meteor = document.createElement('div');
+                meteor.classList.add('meteor');
+                meteor.style.left = `${Math.random() * 100}%`;
+                meteor.style.top = `${Math.random() * 100}%`;
+                meteor.style.animationDelay = `${Math.random() * 2}s`;
+                gameCanvas.appendChild(meteor);
+            }
+        }
+
+        window.addEventListener('load', createStarryBackground);
+    </script>
+</canvas>
     <div id="score">Pontuação: 0</div>
     <div id="killCount">Abates: 0</div>
     <div id="wave">Onda: 1</div>
